@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homebrew Den - A Homebrew Tap by MrDemonWolf, Inc.</title>
+  <meta name="description" content="A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc. Install formulae and casks with a single command.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+          <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+          <line x1="6" y1="2" x2="6" y2="4"/>
+          <line x1="10" y1="2" x2="10" y2="4"/>
+          <line x1="14" y1="2" x2="14" y2="4"/>
+        </svg>
+        Homebrew Den
+      </a>
+      <div class="nav-actions">
+        <button class="nav-btn" id="theme-toggle" aria-label="Toggle theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <a href="https://github.com/mrdemonwolf/homebrew-den" class="nav-btn" aria-label="View on GitHub" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Homebrew <span class="accent">Den</span></h1>
+    <p class="tagline">A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc.</p>
+    <div class="install-box">
+      <code id="tap-command">brew tap mrdemonwolf/den</code>
+      <button class="copy-btn" onclick="copyText('tap-command', this)" aria-label="Copy install command">
+        <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- How to Use -->
+  <section class="section">
+    <h2 class="section-title">How to Use</h2>
+    <p class="section-subtitle">Get up and running in three easy steps.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Add the Tap</h3>
+        <p>Register the Homebrew Den tap on your machine.</p>
+        <code>brew tap mrdemonwolf/den</code>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Install a Package</h3>
+        <p>Install any formula or cask from the tap.</p>
+        <code>brew install &lt;formula&gt;</code>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Stay Updated</h3>
+        <p>Keep your packages up to date with Homebrew.</p>
+        <code>brew update &amp;&amp; brew upgrade</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- Formulae -->
+  <section class="section packages-section" id="formulae-section">
+    <h2 class="section-title">Formulae</h2>
+    <p class="section-subtitle">Command-line tools available in the tap.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Version</th>
+            <th>Description</th>
+            <th>Install</th>
+          </tr>
+        </thead>
+        <tbody id="formulae-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Casks -->
+  <section class="section packages-section" id="casks-section">
+    <h2 class="section-title">Casks</h2>
+    <p class="section-subtitle">macOS applications available in the tap.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Version</th>
+            <th>Description</th>
+            <th>Install</th>
+          </tr>
+        </thead>
+        <tbody id="casks-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>MIT License</span>
+      <span class="footer-sep">&middot;</span>
+      <span>&copy; 2026 <a href="https://www.mrdemonwolf.com" target="_blank" rel="noopener noreferrer">MrDemonWolf, Inc.</a></span>
+      <span class="footer-sep">&middot;</span>
+      <a href="https://github.com/mrdemonwolf/homebrew-den" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+    // --- Package data injected at build time ---
+    const data = {{PACKAGES_JSON}};
+
+    // --- SVG icons ---
+    const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+    // --- Render tables ---
+    function renderTable(items, bodyId, installPrefix) {
+      const tbody = document.getElementById(bodyId);
+      if (!items || items.length === 0) return false;
+
+      tbody.innerHTML = items.map(pkg => `
+        <tr>
+          <td data-label="Name">
+            <a href="${pkg.homepage}" class="pkg-name" target="_blank" rel="noopener noreferrer">${pkg.name}</a>
+          </td>
+          <td data-label="Version">
+            <span class="pkg-version">v${pkg.version}</span>
+          </td>
+          <td data-label="Description">${pkg.desc}</td>
+          <td data-label="Install">
+            <span class="pkg-install">
+              <code>${installPrefix}${pkg.name}</code>
+              <button class="copy-sm" onclick="copyCommand('${installPrefix}${pkg.name}', this)" aria-label="Copy install command">
+                ${copyIcon}
+              </button>
+            </span>
+          </td>
+        </tr>
+      `).join('');
+      return true;
+    }
+
+    const hasFormulae = renderTable(data.formulae, 'formulae-body', 'brew install ');
+    const hasCasks = renderTable(data.casks, 'casks-body', 'brew install --cask ');
+
+    if (!hasFormulae) document.getElementById('formulae-section').classList.add('hidden');
+    if (!hasCasks) document.getElementById('casks-section').classList.add('hidden');
+
+    // --- Copy functions ---
+    function copyText(elementId, btn) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => showCopied(btn));
+    }
+
+    function copyCommand(text, btn) {
+      navigator.clipboard.writeText(text).then(() => showCopiedSmall(btn));
+    }
+
+    function showCopied(btn) {
+      btn.classList.add('copied');
+      btn.querySelector('.icon-copy').style.display = 'none';
+      btn.querySelector('.icon-check').style.display = 'block';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.querySelector('.icon-copy').style.display = '';
+        btn.querySelector('.icon-check').style.display = 'none';
+      }, 2000);
+    }
+
+    function showCopiedSmall(btn) {
+      btn.classList.add('copied');
+      btn.innerHTML = checkIcon;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = copyIcon;
+      }, 2000);
+    }
+
+    // --- Theme toggle ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+
+    function setTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      // Toggle icon visibility
+      const sun = themeToggle.querySelector('.icon-sun');
+      const moon = themeToggle.querySelector('.icon-moon');
+      if (theme === 'dark') {
+        sun.style.display = 'block';
+        moon.style.display = 'none';
+      } else {
+        sun.style.display = 'none';
+        moon.style.display = 'block';
+      }
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+      setTheme('light');
+    } else {
+      setTheme('dark');
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>
