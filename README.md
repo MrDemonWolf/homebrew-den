@@ -1,26 +1,13 @@
 # Homebrew Den
 
-A [Homebrew](https://brew.sh) tap for CLI tools and macOS apps.
+A [Homebrew](https://brew.sh) tap for CLI tools and macOS apps by [MrDemonWolf, Inc.](https://www.mrdemonwolf.com)
 
-## Usage
+## Quick Start
 
 ```sh
 brew tap mrdemonwolf/den
-brew install <formula>        # CLI tools
-brew install --cask <name>    # macOS apps
-```
-
-To uninstall a formula or cask:
-
-```sh
-brew uninstall <formula>
-brew uninstall --cask <name>
-```
-
-To remove the tap:
-
-```sh
-brew untap mrdemonwolf/den
+brew install <formula>          # CLI tools
+brew install --cask <name>      # macOS apps
 ```
 
 ## Available Formulae
@@ -34,6 +21,17 @@ brew untap mrdemonwolf/den
 | Cask | Description |
 | ---- | ----------- |
 | _none yet_ | Casks will be listed here as they are added |
+
+## Documentation Site
+
+This tap has an auto-generated documentation site deployed to GitHub Pages. The site rebuilds automatically whenever a formula or cask is added, changed, or removed.
+
+To build the site locally:
+
+```sh
+bash scripts/build-site.sh
+open _site/index.html
+```
 
 ## Adding a New Cask
 
@@ -67,4 +65,4 @@ brew install --cask Casks/<name>.rb
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) &mdash; &copy; 2026 [MrDemonWolf, Inc.](https://www.mrdemonwolf.com)
