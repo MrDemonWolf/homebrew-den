@@ -1,23 +1,26 @@
 class Iconwolf < Formula
   desc "Cross-platform app icon generator for Expo/React Native projects"
   homepage "https://github.com/MrDemonWolf/iconwolf"
-  url "https://github.com/MrDemonWolf/iconwolf/archive/refs/tags/v0.0.2.tar.gz"
-  sha256 "0d85efbc04206f5a0462d12f07bfe8400b78a963287bf3327c8198b8fcf20368"
+  version "0.0.2"
   license "MIT"
 
-  depends_on "node"
+  on_macos do
+    if Hardware::CPU.arm?
+      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.0.2/iconwolf-macos-arm64.tar.gz"
+      sha256 ""
+    else
+      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.0.2/iconwolf-macos-x64.tar.gz"
+      sha256 ""
+    end
+  end
+
+  on_linux do
+    url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.0.2/iconwolf-linux-x64.tar.gz"
+    sha256 ""
+  end
 
   def install
-    # Install all deps (including devDeps for TypeScript compilation)
-    system "npm", "install"
-    # Compile TypeScript to dist/
-    system "npm", "run", "build"
-    # Prune devDependencies before packaging
-    system "npm", "prune", "--omit=dev"
-
-    libexec.install "dist", "node_modules", "package.json"
-    (bin/"iconwolf").write_env_script libexec/"dist/index.js",
-                                     PATH: "#{Formula["node"].opt_bin}:$PATH"
+    bin.install "iconwolf"
   end
 
   def caveats
@@ -28,7 +31,7 @@ class Iconwolf < Formula
       To fully remove iconwolf:
         brew uninstall iconwolf
 
-      This removes the CLI binary and all supporting files. No other cleanup needed.
+      This removes the CLI binary. No other cleanup needed.
     EOS
   end
 
