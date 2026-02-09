@@ -140,6 +140,18 @@
       <h2 class="formula-card-title">Caveats</h2>
       <pre class="formula-caveats" id="formula-caveats"></pre>
     </div>
+
+    <!-- README -->
+    <div class="formula-card" id="readme-card">
+      <h2 class="formula-card-title">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        README
+      </h2>
+      <div class="readme-content" id="readme-content">{{README_HTML}}</div>
+    </div>
   </main>
 
   <!-- Footer -->
@@ -171,6 +183,12 @@
     if (formula.caveats) {
       document.getElementById('caveats-card').classList.remove('hidden');
       document.getElementById('formula-caveats').textContent = formula.caveats;
+    }
+
+    // Hide README card if empty
+    const readmeContent = document.getElementById('readme-content');
+    if (!readmeContent.innerHTML.trim()) {
+      document.getElementById('readme-card').classList.add('hidden');
     }
 
     // --- Copy function ---
