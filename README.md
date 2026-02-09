@@ -1,12 +1,20 @@
 # Homebrew Den
 
-A [Homebrew](https://brew.sh) tap for macOS apps distributed as DMGs via GitHub Releases.
+A [Homebrew](https://brew.sh) tap for CLI tools and macOS apps.
 
 ## Usage
 
 ```sh
 brew tap mrdemonwolf/den
-brew install --cask <name>
+brew install <formula>        # CLI tools
+brew install --cask <name>    # macOS apps
+```
+
+To uninstall a formula or cask:
+
+```sh
+brew uninstall <formula>
+brew uninstall --cask <name>
 ```
 
 To remove the tap:
@@ -14,6 +22,12 @@ To remove the tap:
 ```sh
 brew untap mrdemonwolf/den
 ```
+
+## Available Formulae
+
+| Formula | Description |
+| ------- | ----------- |
+| `iconwolf` | Cross-platform app icon generator for Expo/React Native projects |
 
 ## Available Casks
 
