@@ -54,6 +54,7 @@ declare -a formula_descs=()
 declare -a formula_homepages=()
 declare -a formula_licenses=()
 declare -a formula_caveats=()
+declare -a formula_readmes=()
 
 for rb in "$REPO_ROOT"/Formula/*.rb; do
   [ -f "$rb" ] || continue
@@ -73,6 +74,21 @@ for rb in "$REPO_ROOT"/Formula/*.rb; do
   formula_homepages+=("$homepage")
   formula_licenses+=("$license")
   formula_caveats+=("$caveats")
+
+  # Fetch README from GitHub API if homepage is a GitHub URL
+  readme_html=""
+  if echo "$homepage" | grep -q 'github\.com/'; then
+    repo_path=$(echo "$homepage" | sed 's|https://github.com/||')
+    echo "Fetching README for $name from $repo_path..."
+    auth_header=""
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+      auth_header="-H \"Authorization: token $GITHUB_TOKEN\""
+    fi
+    readme_html=$(curl -sf -H "Accept: application/vnd.github.html" \
+      ${GITHUB_TOKEN:+-H "Authorization: token $GITHUB_TOKEN"} \
+      "https://api.github.com/repos/$repo_path/readme" 2>/dev/null || echo "")
+  fi
+  formula_readmes+=("$readme_html")
 
   $first || formulae_json+=","
   first=false
@@ -123,10 +139,28 @@ for i in "${!formula_names[@]}"; do
   formula_json=$(printf '{"name":"%s","version":"%s","desc":"%s","homepage":"%s","license":"%s","caveats":"%s"}' \
     "$fname" "${formula_versions[$i]}" "${formula_descs[$i]}" "${formula_homepages[$i]}" "${formula_licenses[$i]}" "$escaped_caveats")
 
-  sed -e "s|{{FORMULA_JSON}}|$formula_json|g" \
-      -e "s|{{FORMULA_NAME}}|$fname|g" \
-      -e "s|{{PACKAGES_JSON}}|$packages_json|g" \
-      "$FORMULA_TEMPLATE" > "$SITE_DIR/formulae/$fname/index.html"
+  readme_content="${formula_readmes[$i]}"
+
+  # Build the page by splitting the template at the README placeholder
+  # This avoids sed issues with HTML special characters in the README
+  {
+    # Everything before {{README_HTML}}
+    sed -e "s|{{FORMULA_JSON}}|$formula_json|g" \
+        -e "s|{{FORMULA_NAME}}|$fname|g" \
+        -e "s|{{PACKAGES_JSON}}|$packages_json|g" \
+        "$FORMULA_TEMPLATE" | while IFS= read -r line; do
+      if echo "$line" | grep -q '{{README_HTML}}'; then
+        # Replace the placeholder line with actual README content
+        before=$(echo "$line" | sed 's|{{README_HTML}}.*||')
+        after=$(echo "$line" | sed 's|.*{{README_HTML}}||')
+        printf '%s' "$before"
+        printf '%s' "$readme_content"
+        printf '%s\n' "$after"
+      else
+        printf '%s\n' "$line"
+      fi
+    done
+  } > "$SITE_DIR/formulae/$fname/index.html"
 done
 
 # --- Copy static assets ---
