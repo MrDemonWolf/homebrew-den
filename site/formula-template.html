@@ -95,6 +95,7 @@
       <div class="formula-title-row">
         <h1 class="formula-name" id="formula-name"></h1>
         <span class="pkg-version formula-version" id="formula-version"></span>
+        <span id="formula-stability-badge"></span>
       </div>
       <p class="formula-desc" id="formula-desc"></p>
     </div>
@@ -131,6 +132,10 @@
         <div class="formula-meta-row">
           <dt>Version</dt>
           <dd id="formula-version-detail"></dd>
+        </div>
+        <div class="formula-meta-row" id="stability-row">
+          <dt>Stability</dt>
+          <dd id="formula-stability-detail"></dd>
         </div>
       </dl>
     </div>
@@ -179,6 +184,22 @@
     document.getElementById('formula-homepage').href = formula.homepage;
     document.getElementById('formula-license').textContent = formula.license || 'N/A';
     document.getElementById('formula-version-detail').textContent = formula.version;
+
+    // Stability badge
+    const stabilityLabels = { alpha: 'Alpha', beta: 'Beta', rc: 'Release Candidate', 'pre-release': 'Pre-release', stable: 'Stable' };
+    const stability = formula.stability || 'stable';
+    const stabilityLabel = stabilityLabels[stability] || stability;
+
+    if (stability !== 'stable') {
+      document.getElementById('formula-stability-badge').innerHTML =
+        '<span class="stability-badge stability-' + stability + '">' + stabilityLabel + '</span>';
+      document.getElementById('formula-stability-detail').innerHTML =
+        '<span class="stability-badge stability-' + stability + '">' + stabilityLabel + '</span>' +
+        '<span class="stability-hint"> &mdash; This version is not yet considered stable.</span>';
+    } else {
+      document.getElementById('formula-stability-detail').innerHTML =
+        '<span class="stability-badge stability-stable">Stable</span>';
+    }
 
     if (formula.caveats) {
       document.getElementById('caveats-card').classList.remove('hidden');
