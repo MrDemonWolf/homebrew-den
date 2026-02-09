@@ -55,6 +55,7 @@ declare -a formula_homepages=()
 declare -a formula_licenses=()
 declare -a formula_caveats=()
 declare -a formula_readmes=()
+declare -a formula_stabilities=()
 
 for rb in "$REPO_ROOT"/Formula/*.rb; do
   [ -f "$rb" ] || continue
@@ -90,12 +91,44 @@ for rb in "$REPO_ROOT"/Formula/*.rb; do
   fi
   formula_readmes+=("$readme_html")
 
+  # Determine stability: check GitHub release pre-release flag + semver
+  stability="stable"
+  if echo "$homepage" | grep -q 'github\.com/'; then
+    repo_path_rel=$(echo "$homepage" | sed 's|https://github.com/||')
+    release_json=$(curl -sf \
+      ${GITHUB_TOKEN:+-H "Authorization: token $GITHUB_TOKEN"} \
+      "https://api.github.com/repos/$repo_path_rel/releases/tags/v$version" 2>/dev/null || echo "")
+    if [ -n "$release_json" ]; then
+      # Check if GitHub release is marked as pre-release
+      if echo "$release_json" | grep -q '"prerelease": true'; then
+        stability="pre-release"
+      fi
+    fi
+  fi
+  # Semver: 0.x.x is alpha (overrides stable, but not an explicit pre-release flag)
+  if echo "$version" | grep -q '^0\.'; then
+    if [ "$stability" = "stable" ]; then
+      stability="alpha"
+    fi
+  fi
+  # Check for common pre-release version suffixes
+  if echo "$version" | grep -qiE '[-](alpha|beta|rc|dev|canary|nightly|preview)'; then
+    case "$version" in
+      *[Aa]lpha*) stability="alpha" ;;
+      *[Bb]eta*)  stability="beta" ;;
+      *[Rr][Cc]*) stability="rc" ;;
+      *)          stability="pre-release" ;;
+    esac
+  fi
+  echo "  -> $name v$version stability: $stability"
+  formula_stabilities+=("$stability")
+
   $first || formulae_json+=","
   first=false
 
   escaped_caveats=$(json_escape "$caveats")
-  formulae_json+=$(printf '{"name":"%s","version":"%s","desc":"%s","homepage":"%s","license":"%s","caveats":"%s"}' \
-    "$name" "$version" "$desc" "$homepage" "$license" "$escaped_caveats")
+  formulae_json+=$(printf '{"name":"%s","version":"%s","desc":"%s","homepage":"%s","license":"%s","caveats":"%s","stability":"%s"}' \
+    "$name" "$version" "$desc" "$homepage" "$license" "$escaped_caveats" "$stability")
 done
 
 formulae_json+="]"
@@ -136,8 +169,8 @@ for i in "${!formula_names[@]}"; do
   mkdir -p "$SITE_DIR/formulae/$fname"
 
   escaped_caveats=$(json_escape "${formula_caveats[$i]}")
-  formula_json=$(printf '{"name":"%s","version":"%s","desc":"%s","homepage":"%s","license":"%s","caveats":"%s"}' \
-    "$fname" "${formula_versions[$i]}" "${formula_descs[$i]}" "${formula_homepages[$i]}" "${formula_licenses[$i]}" "$escaped_caveats")
+  formula_json=$(printf '{"name":"%s","version":"%s","desc":"%s","homepage":"%s","license":"%s","caveats":"%s","stability":"%s"}' \
+    "$fname" "${formula_versions[$i]}" "${formula_descs[$i]}" "${formula_homepages[$i]}" "${formula_licenses[$i]}" "$escaped_caveats" "${formula_stabilities[$i]}")
 
   readme_content="${formula_readmes[$i]}"
 

@@ -594,6 +594,50 @@ a:hover {
   white-space: nowrap;
 }
 
+/* --- Stability Badges --- */
+.stability-badge {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.stability-alpha {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.stability-beta {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+}
+
+.stability-rc {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.stability-pre-release {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.stability-stable {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.stability-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .pkg-install {
   font-family: var(--font-mono);
   font-size: 0.85rem;
