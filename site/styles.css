@@ -638,6 +638,25 @@ a:hover {
   color: var(--text-muted);
 }
 
+.stability-current {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.version-current {
+  background: var(--accent-subtle);
+}
+
+.version-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.version-link:hover {
+  text-decoration: underline;
+}
+
 .pkg-install {
   font-family: var(--font-mono);
   font-size: 0.85rem;

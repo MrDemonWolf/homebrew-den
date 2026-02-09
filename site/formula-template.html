@@ -146,6 +146,30 @@
       <pre class="formula-caveats" id="formula-caveats"></pre>
     </div>
 
+    <!-- Version History -->
+    <div class="formula-card hidden" id="versions-card">
+      <h2 class="formula-card-title">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Version History
+      </h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="versions-body"></tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- README -->
     <div class="formula-card" id="readme-card">
       <h2 class="formula-card-title">
@@ -204,6 +228,25 @@
     if (formula.caveats) {
       document.getElementById('caveats-card').classList.remove('hidden');
       document.getElementById('formula-caveats').textContent = formula.caveats;
+    }
+
+    // Version history
+    if (formula.versions && formula.versions.length > 0) {
+      document.getElementById('versions-card').classList.remove('hidden');
+      const vtbody = document.getElementById('versions-body');
+      vtbody.innerHTML = formula.versions.map(v => {
+        const isCurrent = v.version === formula.version;
+        const statusBadge = v.prerelease
+          ? '<span class="stability-badge stability-pre-release">Pre-release</span>'
+          : '<span class="stability-badge stability-stable">Stable</span>';
+        const currentTag = isCurrent ? ' <span class="stability-badge stability-current">Current</span>' : '';
+        return '<tr' + (isCurrent ? ' class="version-current"' : '') + '>' +
+          '<td data-label="Version"><span class="pkg-version">v' + v.version + '</span>' + currentTag + '</td>' +
+          '<td data-label="Date">' + v.date + '</td>' +
+          '<td data-label="Status">' + statusBadge + '</td>' +
+          '<td data-label=""><a href="' + v.url + '" target="_blank" rel="noopener noreferrer" class="version-link">Release notes</a></td>' +
+          '</tr>';
+      }).join('');
     }
 
     // Hide README card if empty
