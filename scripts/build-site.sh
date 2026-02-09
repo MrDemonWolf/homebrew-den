@@ -56,6 +56,7 @@ declare -a formula_licenses=()
 declare -a formula_caveats=()
 declare -a formula_readmes=()
 declare -a formula_stabilities=()
+declare -a formula_releases_json=()
 
 for rb in "$REPO_ROOT"/Formula/*.rb; do
   [ -f "$rb" ] || continue
@@ -91,18 +92,52 @@ for rb in "$REPO_ROOT"/Formula/*.rb; do
   fi
   formula_readmes+=("$readme_html")
 
-  # Determine stability: check GitHub release pre-release flag + semver
+  # Determine stability + fetch all releases for version history
   stability="stable"
+  versions_json="[]"
   if echo "$homepage" | grep -q 'github\.com/'; then
     repo_path_rel=$(echo "$homepage" | sed 's|https://github.com/||')
-    release_json=$(curl -sf \
+
+    # Fetch all releases (used for both stability check and version history)
+    all_releases_json=$(curl -sf \
       ${GITHUB_TOKEN:+-H "Authorization: token $GITHUB_TOKEN"} \
-      "https://api.github.com/repos/$repo_path_rel/releases/tags/v$version" 2>/dev/null || echo "")
-    if [ -n "$release_json" ]; then
-      # Check if GitHub release is marked as pre-release
-      if echo "$release_json" | grep -q '"prerelease": true'; then
-        stability="pre-release"
-      fi
+      "https://api.github.com/repos/$repo_path_rel/releases?per_page=100" 2>/dev/null || echo "[]")
+
+    # Parse releases with python3 for reliability
+    parsed_releases=$(python3 -c "
+import json, sys
+target_version = sys.argv[1]
+try:
+    releases = json.loads(sys.stdin.read())
+    if not isinstance(releases, list): releases = []
+    is_pre = 'false'
+    for r in releases:
+        if r.get('tag_name') == 'v' + target_version and r.get('prerelease'):
+            is_pre = 'true'
+            break
+    versions = []
+    for r in releases:
+        tag = r.get('tag_name', '')
+        ver = tag.lstrip('v')
+        versions.append({
+            'version': ver,
+            'tag': tag,
+            'date': (r.get('published_at') or '')[:10],
+            'prerelease': r.get('prerelease', False),
+            'url': r.get('html_url', '')
+        })
+    print(is_pre)
+    print(json.dumps(versions))
+except:
+    print('false')
+    print('[]')
+" "$version" <<< "$all_releases_json" 2>/dev/null || printf 'false\n[]\n')
+
+    is_prerelease=$(echo "$parsed_releases" | head -1)
+    versions_json=$(echo "$parsed_releases" | tail -n +2)
+
+    if [ "$is_prerelease" = "true" ]; then
+      stability="pre-release"
     fi
   fi
   # Semver: 0.x.x is alpha (overrides stable, but not an explicit pre-release flag)
@@ -120,8 +155,9 @@ for rb in "$REPO_ROOT"/Formula/*.rb; do
       *)          stability="pre-release" ;;
     esac
   fi
-  echo "  -> $name v$version stability: $stability"
+  echo "  -> $name v$version stability: $stability (${versions_json:0:40}...)"
   formula_stabilities+=("$stability")
+  formula_releases_json+=("$versions_json")
 
   $first || formulae_json+=","
   first=false
@@ -160,8 +196,19 @@ casks_json+="]"
 # --- Combine JSON ---
 packages_json=$(printf '{"formulae":%s,"casks":%s}' "$formulae_json" "$casks_json")
 
-# --- Build index.html ---
-sed "s|{{PACKAGES_JSON}}|$packages_json|g" "$TEMPLATE" > "$SITE_DIR/index.html"
+# --- Build index.html (use printf to avoid sed escape issues on GNU sed/Linux) ---
+while IFS= read -r line || [ -n "$line" ]; do
+  case "$line" in
+    *'{{PACKAGES_JSON}}'*)
+      printf '%s' "${line%%'{{PACKAGES_JSON}}'*}"
+      printf '%s' "$packages_json"
+      printf '%s\n' "${line#*'{{PACKAGES_JSON}}'}"
+      ;;
+    *)
+      printf '%s\n' "$line"
+      ;;
+  esac
+done < "$TEMPLATE" > "$SITE_DIR/index.html"
 
 # --- Build individual formula pages ---
 for i in "${!formula_names[@]}"; do
@@ -169,31 +216,40 @@ for i in "${!formula_names[@]}"; do
   mkdir -p "$SITE_DIR/formulae/$fname"
 
   escaped_caveats=$(json_escape "${formula_caveats[$i]}")
-  formula_json=$(printf '{"name":"%s","version":"%s","desc":"%s","homepage":"%s","license":"%s","caveats":"%s","stability":"%s"}' \
-    "$fname" "${formula_versions[$i]}" "${formula_descs[$i]}" "${formula_homepages[$i]}" "${formula_licenses[$i]}" "$escaped_caveats" "${formula_stabilities[$i]}")
+  versions_data="${formula_releases_json[$i]:-[]}"
+  formula_json=$(printf '{"name":"%s","version":"%s","desc":"%s","homepage":"%s","license":"%s","caveats":"%s","stability":"%s","versions":%s}' \
+    "$fname" "${formula_versions[$i]}" "${formula_descs[$i]}" "${formula_homepages[$i]}" "${formula_licenses[$i]}" "$escaped_caveats" "${formula_stabilities[$i]}" "$versions_data")
 
   readme_content="${formula_readmes[$i]}"
 
-  # Build the page by splitting the template at the README placeholder
-  # This avoids sed issues with HTML special characters in the README
+  # Build the page using printf to avoid sed escape issues across platforms
   {
-    # Everything before {{README_HTML}}
-    sed -e "s|{{FORMULA_JSON}}|$formula_json|g" \
-        -e "s|{{FORMULA_NAME}}|$fname|g" \
-        -e "s|{{PACKAGES_JSON}}|$packages_json|g" \
-        "$FORMULA_TEMPLATE" | while IFS= read -r line; do
-      if echo "$line" | grep -q '{{README_HTML}}'; then
-        # Replace the placeholder line with actual README content
-        before=$(echo "$line" | sed 's|{{README_HTML}}.*||')
-        after=$(echo "$line" | sed 's|.*{{README_HTML}}||')
-        printf '%s' "$before"
-        printf '%s' "$readme_content"
-        printf '%s\n' "$after"
-      else
-        printf '%s\n' "$line"
-      fi
+    while IFS= read -r line || [ -n "$line" ]; do
+      # Replace formula name (safe, no special chars)
+      line="${line//\{\{FORMULA_NAME\}\}/$fname}"
+
+      case "$line" in
+        *'{{FORMULA_JSON}}'*)
+          printf '%s' "${line%%'{{FORMULA_JSON}}'*}"
+          printf '%s' "$formula_json"
+          printf '%s\n' "${line#*'{{FORMULA_JSON}}'}"
+          ;;
+        *'{{PACKAGES_JSON}}'*)
+          printf '%s' "${line%%'{{PACKAGES_JSON}}'*}"
+          printf '%s' "$packages_json"
+          printf '%s\n' "${line#*'{{PACKAGES_JSON}}'}"
+          ;;
+        *'{{README_HTML}}'*)
+          printf '%s' "${line%%'{{README_HTML}}'*}"
+          printf '%s' "$readme_content"
+          printf '%s\n' "${line#*'{{README_HTML}}'}"
+          ;;
+        *)
+          printf '%s\n' "$line"
+          ;;
+      esac
     done
-  } > "$SITE_DIR/formulae/$fname/index.html"
+  } < "$FORMULA_TEMPLATE" > "$SITE_DIR/formulae/$fname/index.html"
 done
 
 # --- Copy static assets ---
