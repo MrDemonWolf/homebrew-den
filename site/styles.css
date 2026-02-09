@@ -37,6 +37,7 @@
   --table-border: #1a3068;
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   --hero-gradient: linear-gradient(135deg, #091533 0%, #0f2150 50%, #132a5e 100%);
+  --overlay-bg: rgba(5, 10, 30, 0.75);
 }
 
 /* --- Light theme --- */
@@ -54,6 +55,7 @@
   --table-border: #e2e6ef;
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   --hero-gradient: linear-gradient(135deg, #f0f4ff 0%, #e8edf8 50%, #f8f9fc 100%);
+  --overlay-bg: rgba(0, 0, 0, 0.4);
 }
 
 /* --- Base --- */
@@ -145,6 +147,234 @@ a:hover {
 .nav-btn svg {
   width: 18px;
   height: 18px;
+}
+
+/* --- Search Trigger (nav bar) --- */
+.search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  transition: all var(--transition);
+}
+
+.search-trigger:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+.search-trigger svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.search-kbd {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border: 1px solid var(--card-border);
+  border-radius: 3px;
+  background: var(--code-bg);
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+/* --- Search Modal (Cmd+K) --- */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.15s ease;
+}
+
+.search-overlay.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.search-modal {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: slideUp 0.15s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-esc {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  padding: 3px 6px;
+  border: 1px solid var(--card-border);
+  border-radius: 3px;
+  background: var(--code-bg);
+  color: var(--text-muted);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.search-results {
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.search-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--card-border);
+  transition: background var(--transition);
+  cursor: pointer;
+}
+
+.search-result:last-child {
+  border-bottom: none;
+}
+
+.search-result:hover,
+.search-result.active {
+  background: var(--accent-subtle);
+}
+
+.search-result.active {
+  border-left: 3px solid var(--accent);
+  padding-left: 13px;
+}
+
+.search-result-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.search-result-name {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.search-result-desc {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.search-result-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.search-result-version {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.search-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--card-border);
+  background: var(--code-bg);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.search-footer kbd {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border: 1px solid var(--card-border);
+  border-radius: 3px;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  margin: 0 2px;
 }
 
 /* --- Hero --- */
@@ -411,6 +641,143 @@ a:hover {
   display: none;
 }
 
+/* --- Breadcrumb --- */
+.breadcrumb-bar {
+  border-bottom: 1px solid var(--card-border);
+  background: var(--bg-alt);
+  transition: all var(--transition);
+}
+
+.breadcrumb-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 12px 24px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumb-sep {
+  color: var(--text-muted);
+}
+
+.breadcrumb-inner a {
+  color: var(--text-muted);
+}
+
+.breadcrumb-inner a:hover {
+  color: var(--accent);
+}
+
+.breadcrumb-inner > span:last-child {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* --- Formula Detail Page --- */
+.formula-detail {
+  padding-top: 48px;
+}
+
+.formula-header {
+  margin-bottom: 32px;
+}
+
+.formula-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.formula-name {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.formula-version {
+  font-size: 0.85rem;
+}
+
+.formula-desc {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.formula-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: all var(--transition);
+}
+
+.formula-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.formula-install-box {
+  width: 100%;
+  box-shadow: none;
+}
+
+.formula-meta {
+  display: grid;
+  gap: 0;
+}
+
+.formula-meta-row {
+  display: flex;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.formula-meta-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.formula-meta-row:first-child {
+  padding-top: 0;
+}
+
+.formula-meta-row dt {
+  width: 120px;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.formula-meta-row dd {
+  font-size: 0.9rem;
+}
+
+.formula-caveats {
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
 /* --- Footer --- */
 .footer {
   border-top: 1px solid var(--card-border);
@@ -524,5 +891,38 @@ a:hover {
     color: var(--text-muted);
     display: block;
     margin-bottom: 2px;
+  }
+
+  /* Search trigger: icon only on mobile */
+  .search-trigger-text {
+    display: none;
+  }
+
+  .search-kbd {
+    display: none;
+  }
+
+  .search-trigger {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .search-modal {
+    margin: 0 16px;
+  }
+
+  /* Formula detail */
+  .formula-name {
+    font-size: 1.5rem;
+  }
+
+  .formula-meta-row {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .formula-meta-row dt {
+    width: auto;
   }
 }
