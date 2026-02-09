@@ -12,9 +12,9 @@ brew install --cask <name>      # macOS apps
 
 ## Available Formulae
 
-| Formula | Description |
-| ------- | ----------- |
-| `iconwolf` | Cross-platform app icon generator for Expo/React Native projects |
+| Formula | Version | Stability | Description |
+| ------- | ------- | --------- | ----------- |
+| `iconwolf` | 0.0.2 | Alpha | Cross-platform app icon generator for Expo/React Native projects |
 
 ## Available Casks
 
@@ -24,9 +24,16 @@ brew install --cask <name>      # macOS apps
 
 ## Documentation Site
 
-This tap has an auto-generated documentation site deployed to GitHub Pages. The site rebuilds automatically whenever a formula or cask is added, changed, or removed.
+Browse the full documentation at **[mrdemonwolf.github.io/homebrew-den](https://mrdemonwolf.github.io/homebrew-den/)**.
 
-To build the site locally:
+The site auto-rebuilds on every push to `main` and includes:
+
+- Dark/light theme with system preference detection
+- Cmd+K / Ctrl+K search palette for quick package lookup
+- Per-formula detail pages with install commands, metadata, and README from the source repo
+- Stability badges (Alpha, Beta, RC, Pre-release) based on semver and GitHub Releases
+
+To build locally:
 
 ```sh
 bash scripts/build-site.sh
