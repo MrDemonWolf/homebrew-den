@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Homebrew Den - A Homebrew Tap by MrDemonWolf, Inc.</title>
-  <meta name="description" content="A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc. Install formulae and casks with a single command.">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="styles.css">
+  <title>{{FORMULA_NAME}} - Homebrew Den</title>
+  <meta name="description" content="Install {{FORMULA_NAME}} from the Homebrew Den tap.">
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="stylesheet" href="../../styles.css">
 </head>
 <body>
   <!-- Nav -->
   <nav class="nav">
     <div class="nav-inner">
-      <a href="./" class="nav-brand">
+      <a href="../../" class="nav-brand">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
           <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
@@ -78,87 +78,69 @@
     </div>
   </div>
 
-  <!-- Hero -->
-  <section class="hero">
-    <h1>Homebrew <span class="accent">Den</span></h1>
-    <p class="tagline">A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc.</p>
-    <div class="install-box">
-      <code id="tap-command">brew tap mrdemonwolf/den</code>
-      <button class="copy-btn" onclick="copyText('tap-command', this)" aria-label="Copy install command">
-        <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-        <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </button>
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-bar">
+    <div class="breadcrumb-inner">
+      <a href="../../">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="../../#formulae-section">Formulae</a>
+      <span class="breadcrumb-sep">/</span>
+      <span id="breadcrumb-name">{{FORMULA_NAME}}</span>
     </div>
-  </section>
+  </div>
 
-  <!-- How to Use -->
-  <section class="section">
-    <h2 class="section-title">How to Use</h2>
-    <p class="section-subtitle">Get up and running in three easy steps.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">1</div>
-        <h3>Add the Tap</h3>
-        <p>Register the Homebrew Den tap on your machine.</p>
-        <code>brew tap mrdemonwolf/den</code>
+  <!-- Formula Detail -->
+  <main class="section formula-detail">
+    <div class="formula-header">
+      <div class="formula-title-row">
+        <h1 class="formula-name" id="formula-name"></h1>
+        <span class="pkg-version formula-version" id="formula-version"></span>
       </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <h3>Install a Package</h3>
-        <p>Install any formula or cask from the tap.</p>
-        <code>brew install &lt;formula&gt;</code>
-      </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <h3>Stay Updated</h3>
-        <p>Keep your packages up to date with Homebrew.</p>
-        <code>brew update &amp;&amp; brew upgrade</code>
+      <p class="formula-desc" id="formula-desc"></p>
+    </div>
+
+    <!-- Install Command -->
+    <div class="formula-card">
+      <h2 class="formula-card-title">Install</h2>
+      <div class="install-box formula-install-box">
+        <code id="install-command"></code>
+        <button class="copy-btn" onclick="copyText('install-command', this)" aria-label="Copy install command">
+          <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
       </div>
     </div>
-  </section>
 
-  <!-- Formulae -->
-  <section class="section packages-section" id="formulae-section">
-    <h2 class="section-title">Formulae</h2>
-    <p class="section-subtitle">Command-line tools available in the tap.</p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Description</th>
-            <th>Install</th>
-          </tr>
-        </thead>
-        <tbody id="formulae-body"></tbody>
-      </table>
+    <!-- Details -->
+    <div class="formula-card">
+      <h2 class="formula-card-title">Details</h2>
+      <dl class="formula-meta">
+        <div class="formula-meta-row">
+          <dt>Homepage</dt>
+          <dd><a id="formula-homepage" href="" target="_blank" rel="noopener noreferrer"></a></dd>
+        </div>
+        <div class="formula-meta-row">
+          <dt>License</dt>
+          <dd id="formula-license"></dd>
+        </div>
+        <div class="formula-meta-row">
+          <dt>Version</dt>
+          <dd id="formula-version-detail"></dd>
+        </div>
+      </dl>
     </div>
-  </section>
 
-  <!-- Casks -->
-  <section class="section packages-section" id="casks-section">
-    <h2 class="section-title">Casks</h2>
-    <p class="section-subtitle">macOS applications available in the tap.</p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Description</th>
-            <th>Install</th>
-          </tr>
-        </thead>
-        <tbody id="casks-body"></tbody>
-      </table>
+    <!-- Caveats -->
+    <div class="formula-card hidden" id="caveats-card">
+      <h2 class="formula-card-title">Caveats</h2>
+      <pre class="formula-caveats" id="formula-caveats"></pre>
     </div>
-  </section>
+  </main>
 
   <!-- Footer -->
   <footer class="footer">
@@ -172,77 +154,38 @@
   </footer>
 
   <script>
-    // --- Package data injected at build time ---
+    // --- Formula data injected at build time ---
+    const formula = {{FORMULA_JSON}};
     const data = {{PACKAGES_JSON}};
 
-    // --- SVG icons ---
-    const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-    const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    // --- Populate page ---
+    document.getElementById('formula-name').textContent = formula.name;
+    document.getElementById('formula-version').textContent = 'v' + formula.version;
+    document.getElementById('formula-desc').textContent = formula.desc;
+    document.getElementById('install-command').textContent = 'brew install ' + formula.name;
+    document.getElementById('formula-homepage').textContent = formula.homepage;
+    document.getElementById('formula-homepage').href = formula.homepage;
+    document.getElementById('formula-license').textContent = formula.license || 'N/A';
+    document.getElementById('formula-version-detail').textContent = formula.version;
 
-    // --- Render tables ---
-    function renderTable(items, bodyId, installPrefix, type) {
-      const tbody = document.getElementById(bodyId);
-      if (!items || items.length === 0) return false;
-
-      tbody.innerHTML = items.map(pkg => {
-        const href = type === 'formula' ? `formulae/${pkg.name}/` : pkg.homepage;
-        const target = type === 'formula' ? '' : ' target="_blank" rel="noopener noreferrer"';
-        return `
-        <tr>
-          <td data-label="Name">
-            <a href="${href}" class="pkg-name"${target}>${pkg.name}</a>
-          </td>
-          <td data-label="Version">
-            <span class="pkg-version">v${pkg.version}</span>
-          </td>
-          <td data-label="Description">${pkg.desc}</td>
-          <td data-label="Install">
-            <span class="pkg-install">
-              <code>${installPrefix}${pkg.name}</code>
-              <button class="copy-sm" onclick="copyCommand('${installPrefix}${pkg.name}', this)" aria-label="Copy install command">
-                ${copyIcon}
-              </button>
-            </span>
-          </td>
-        </tr>`;
-      }).join('');
-      return true;
+    if (formula.caveats) {
+      document.getElementById('caveats-card').classList.remove('hidden');
+      document.getElementById('formula-caveats').textContent = formula.caveats;
     }
 
-    const hasFormulae = renderTable(data.formulae, 'formulae-body', 'brew install ', 'formula');
-    const hasCasks = renderTable(data.casks, 'casks-body', 'brew install --cask ', 'cask');
-
-    if (!hasFormulae) document.getElementById('formulae-section').classList.add('hidden');
-    if (!hasCasks) document.getElementById('casks-section').classList.add('hidden');
-
-    // --- Copy functions ---
+    // --- Copy function ---
     function copyText(elementId, btn) {
       const text = document.getElementById(elementId).textContent;
-      navigator.clipboard.writeText(text).then(() => showCopied(btn));
-    }
-
-    function copyCommand(text, btn) {
-      navigator.clipboard.writeText(text).then(() => showCopiedSmall(btn));
-    }
-
-    function showCopied(btn) {
-      btn.classList.add('copied');
-      btn.querySelector('.icon-copy').style.display = 'none';
-      btn.querySelector('.icon-check').style.display = 'block';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.querySelector('.icon-copy').style.display = '';
-        btn.querySelector('.icon-check').style.display = 'none';
-      }, 2000);
-    }
-
-    function showCopiedSmall(btn) {
-      btn.classList.add('copied');
-      btn.innerHTML = checkIcon;
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.innerHTML = copyIcon;
-      }, 2000);
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add('copied');
+        btn.querySelector('.icon-copy').style.display = 'none';
+        btn.querySelector('.icon-check').style.display = 'block';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.querySelector('.icon-copy').style.display = '';
+          btn.querySelector('.icon-check').style.display = 'none';
+        }, 2000);
+      });
     }
 
     // --- Theme toggle ---
@@ -284,14 +227,13 @@
     const searchTrigger = document.getElementById('search-trigger');
     let activeIndex = -1;
 
-    // Detect OS for keyboard hint
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     document.querySelector('.search-kbd').textContent = isMac ? '\u2318K' : 'Ctrl+K';
 
     function buildSearchIndex() {
       const items = [];
       (data.formulae || []).forEach(f => {
-        items.push({ name: f.name, desc: f.desc, version: f.version, type: 'Formula', href: 'formulae/' + f.name + '/' });
+        items.push({ name: f.name, desc: f.desc, version: f.version, type: 'Formula', href: '../../formulae/' + f.name + '/' });
       });
       (data.casks || []).forEach(c => {
         items.push({ name: c.name, desc: c.desc, version: c.version, type: 'Cask', href: c.homepage });
@@ -351,57 +293,34 @@
     function navigateResults(direction) {
       const items = searchResults.querySelectorAll('.search-result');
       if (items.length === 0) return;
-
       activeIndex += direction;
       if (activeIndex < 0) activeIndex = items.length - 1;
       if (activeIndex >= items.length) activeIndex = 0;
-
-      items.forEach((el, i) => {
-        el.classList.toggle('active', i === activeIndex);
-      });
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
       items[activeIndex].scrollIntoView({ block: 'nearest' });
     }
 
     function selectResult() {
       const items = searchResults.querySelectorAll('.search-result');
-      if (activeIndex >= 0 && activeIndex < items.length) {
-        items[activeIndex].click();
-      }
+      if (activeIndex >= 0 && activeIndex < items.length) items[activeIndex].click();
     }
 
-    // Keyboard shortcut: Cmd+K / Ctrl+K
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        if (searchOverlay.classList.contains('hidden')) {
-          openSearch();
-        } else {
-          closeSearch();
-        }
+        searchOverlay.classList.contains('hidden') ? openSearch() : closeSearch();
       }
-      if (e.key === 'Escape' && !searchOverlay.classList.contains('hidden')) {
-        closeSearch();
-      }
+      if (e.key === 'Escape' && !searchOverlay.classList.contains('hidden')) closeSearch();
     });
 
-    // Search input
-    searchInput.addEventListener('input', () => {
-      activeIndex = -1;
-      renderSearchResults(searchInput.value);
-    });
-
+    searchInput.addEventListener('input', () => { activeIndex = -1; renderSearchResults(searchInput.value); });
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown') { e.preventDefault(); navigateResults(1); }
       if (e.key === 'ArrowUp') { e.preventDefault(); navigateResults(-1); }
       if (e.key === 'Enter') { e.preventDefault(); selectResult(); }
     });
 
-    // Click overlay to close
-    searchOverlay.addEventListener('click', (e) => {
-      if (e.target === searchOverlay) closeSearch();
-    });
-
-    // Search trigger button
+    searchOverlay.addEventListener('click', (e) => { if (e.target === searchOverlay) closeSearch(); });
     searchTrigger.addEventListener('click', openSearch);
   </script>
 </body>
