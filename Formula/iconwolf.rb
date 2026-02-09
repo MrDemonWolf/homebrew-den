@@ -1,26 +1,21 @@
 class Iconwolf < Formula
   desc "Cross-platform app icon generator for Expo/React Native projects"
   homepage "https://github.com/MrDemonWolf/iconwolf"
-  version "0.0.2"
+  version "0.0.3"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.0.2/iconwolf-macos-arm64.tar.gz"
-      sha256 ""
-    else
-      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.0.2/iconwolf-macos-x64.tar.gz"
-      sha256 ""
+      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.0.3/iconwolf-macos-arm64.tar.gz"
+      sha256 "03d1db61b4f24106630eb92a2a897ffe4b4ab8cf1664964493a9ff7a0f7576d5"
     end
   end
 
-  on_linux do
-    url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.0.2/iconwolf-linux-x64.tar.gz"
-    sha256 ""
-  end
+  depends_on "node"
 
   def install
-    bin.install "iconwolf"
+    libexec.install Dir["*"]
+    bin.install_symlink libexec/"bin/iconwolf"
   end
 
   def caveats
@@ -36,6 +31,6 @@ class Iconwolf < Formula
   end
 
   test do
-    assert_match "0.0.2", shell_output("#{bin}/iconwolf --version")
+    assert_match "0.0.3", shell_output("#{bin}/iconwolf --version")
   end
 end
