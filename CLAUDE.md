@@ -15,8 +15,9 @@ homebrew-den/
 ├── site/
 │   ├── template.html    # Main page HTML template ({{PACKAGES_JSON}} placeholder)
 │   ├── formula-template.html  # Per-formula detail page template
-│   ├── styles.css       # Dark/light theme CSS
+│   ├── input.css        # Tailwind CSS source (theme config + custom styles)
 │   └── favicon.svg      # SVG favicon (brew cup icon)
+├── package.json         # Node.js deps (tailwindcss, @tailwindcss/cli)
 ├── scripts/
 │   └── build-site.sh    # Parses .rb files, fetches READMEs, builds _site/
 ├── .github/
@@ -37,7 +38,7 @@ homebrew-den/
 
 ## Documentation Site
 
-The site is a single-page static site with per-formula detail pages. Zero dependencies — a shell script parses `.rb` files and builds everything.
+The site is a single-page static site with per-formula detail pages. Styled with Tailwind CSS v4 (utility classes in HTML templates + custom CSS in `site/input.css`). A shell script parses `.rb` files, builds Tailwind, and generates everything.
 
 ### Key features
 - Dark/light theme toggle (respects system preference, saves to localStorage)
@@ -48,8 +49,11 @@ The site is a single-page static site with per-formula detail pages. Zero depend
 
 ### Build locally
 
+Requires Node.js (for Tailwind CSS build).
+
 ```sh
-bash scripts/build-site.sh
+npm install                     # Install Tailwind CSS (first time only)
+bash scripts/build-site.sh      # Build site (includes Tailwind build)
 open _site/index.html
 ```
 
@@ -58,7 +62,8 @@ The build script:
 2. Fetches README HTML from each formula's GitHub repo via the API
 3. Checks GitHub Releases API for pre-release flags + detects semver stability
 4. Generates `_site/index.html` and `_site/formulae/<name>/index.html`
-5. Copies CSS and favicon to `_site/`
+5. Builds Tailwind CSS (`site/input.css` → `site/output.css`)
+6. Copies CSS and favicon to `_site/`
 
 Supports `GITHUB_TOKEN` env var for authenticated API requests in CI.
 
@@ -70,5 +75,6 @@ brew install <formula>               # Install a formula
 brew install --cask <name>           # Install a cask
 brew untap mrdemonwolf/den           # Remove the tap
 brew install --cask Casks/<name>.rb  # Test a cask locally
+npm install                          # Install Node.js dependencies
 bash scripts/build-site.sh          # Build the documentation site
 ```
