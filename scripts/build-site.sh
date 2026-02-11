@@ -5,7 +5,8 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE_DIR="$REPO_ROOT/_site"
 TEMPLATE="$REPO_ROOT/site/template.html"
 FORMULA_TEMPLATE="$REPO_ROOT/site/formula-template.html"
-CSS_SRC="$REPO_ROOT/site/styles.css"
+CSS_INPUT="$REPO_ROOT/site/input.css"
+CSS_OUTPUT="$REPO_ROOT/site/output.css"
 
 rm -rf "$SITE_DIR"
 mkdir -p "$SITE_DIR"
@@ -252,8 +253,12 @@ for i in "${!formula_names[@]}"; do
   } < "$FORMULA_TEMPLATE" > "$SITE_DIR/formulae/$fname/index.html"
 done
 
+# --- Build Tailwind CSS ---
+echo "Building Tailwind CSS..."
+npx @tailwindcss/cli -i "$CSS_INPUT" -o "$CSS_OUTPUT" --minify
+
 # --- Copy static assets ---
-cp "$CSS_SRC" "$SITE_DIR/styles.css"
+cp "$CSS_OUTPUT" "$SITE_DIR/output.css"
 cp "$REPO_ROOT/site/favicon.svg" "$SITE_DIR/favicon.svg"
 
 echo "Site built successfully in $SITE_DIR"

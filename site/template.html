@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Homebrew Den - A Homebrew Tap by MrDemonWolf, Inc.</title>
   <meta name="description" content="A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc. Install formulae and casks with a single command.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="output.css">
 </head>
-<body>
+<body class="font-sans leading-relaxed">
   <!-- Nav -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="./" class="nav-brand">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <nav class="sticky top-0 z-100 bg-[var(--bg-alt)] border-b border-[var(--card-border)] backdrop-blur-md transition-[background,border-color] duration-200 ease-in-out">
+    <div class="max-w-[960px] mx-auto px-6 h-15 flex items-center justify-between">
+      <a href="./" class="flex items-center gap-2.5 font-bold text-lg text-[var(--text)] no-underline">
+        <svg class="w-7 h-7 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
           <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
           <line x1="6" y1="2" x2="6" y2="4"/>
@@ -22,17 +22,17 @@
         </svg>
         Homebrew Den
       </a>
-      <div class="nav-actions">
-        <button class="search-trigger" id="search-trigger" aria-label="Search packages">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="flex items-center gap-2">
+        <button class="flex items-center gap-2 h-9 px-3 border border-[var(--card-border)] rounded-sm bg-transparent text-[var(--text-muted)] cursor-pointer font-sans text-[0.85rem] transition-all duration-200 ease-in-out hover:text-accent hover:border-accent hover:bg-accent-subtle max-sm:w-9 max-sm:px-0 max-sm:justify-center" id="search-trigger" aria-label="Search packages">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/>
             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <span class="search-trigger-text">Search packages...</span>
-          <kbd class="search-kbd"></kbd>
+          <span class="max-sm:hidden">Search packages...</span>
+          <kbd class="font-sans text-[0.7rem] px-1.5 py-0.5 border border-[var(--card-border)] rounded-[3px] bg-[var(--code-bg)] text-[var(--text-muted)] leading-none max-sm:hidden" id="search-kbd"></kbd>
         </button>
-        <button class="nav-btn" id="theme-toggle" aria-label="Toggle theme">
-          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="flex items-center justify-center w-9 h-9 border border-[var(--card-border)] rounded-sm bg-transparent text-[var(--text-muted)] cursor-pointer transition-all duration-200 ease-in-out hover:text-accent hover:border-accent hover:bg-accent-subtle" id="theme-toggle" aria-label="Toggle theme">
+          <svg class="icon-sun w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"/>
             <line x1="12" y1="1" x2="12" y2="3"/>
             <line x1="12" y1="21" x2="12" y2="23"/>
@@ -43,12 +43,12 @@
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
           </svg>
-          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="icon-moon w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
         </button>
-        <a href="https://github.com/mrdemonwolf/homebrew-den" class="nav-btn" aria-label="View on GitHub" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="currentColor">
+        <a href="https://github.com/mrdemonwolf/homebrew-den" class="flex items-center justify-center w-9 h-9 border border-[var(--card-border)] rounded-sm bg-transparent text-[var(--text-muted)] cursor-pointer transition-all duration-200 ease-in-out hover:text-accent hover:border-accent hover:bg-accent-subtle" aria-label="View on GitHub" target="_blank" rel="noopener noreferrer">
+          <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
           </svg>
         </a>
@@ -57,39 +57,39 @@
   </nav>
 
   <!-- Search Modal -->
-  <div class="search-overlay hidden" id="search-overlay">
-    <div class="search-modal">
-      <div class="search-input-wrap">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <div class="fixed inset-0 z-200 flex items-start justify-center pt-[15vh] bg-[var(--overlay-bg)] backdrop-blur-sm animate-fade-in hidden" id="search-overlay">
+    <div class="w-full max-w-[560px] bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg shadow-[0_16px_48px_rgba(0,0,0,0.3)] overflow-hidden animate-slide-up max-sm:mx-4">
+      <div class="flex items-center gap-3 p-4 border-b border-[var(--card-border)]">
+        <svg class="w-5 h-5 text-[var(--text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="text" class="search-input" id="search-input" placeholder="Search formulae and casks..." autocomplete="off" spellcheck="false">
-        <kbd class="search-esc">esc</kbd>
+        <input type="text" class="flex-1 border-none outline-none bg-transparent text-[var(--text)] font-sans text-base placeholder:text-[var(--text-muted)]" id="search-input" placeholder="Search formulae and casks..." autocomplete="off" spellcheck="false">
+        <kbd class="font-sans text-[0.65rem] px-1.5 py-[3px] border border-[var(--card-border)] rounded-[3px] bg-[var(--code-bg)] text-[var(--text-muted)] leading-none uppercase tracking-wide">esc</kbd>
       </div>
-      <div class="search-results" id="search-results">
-        <div class="search-empty">Type to search packages...</div>
+      <div class="max-h-[340px] overflow-y-auto" id="search-results">
+        <div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]">Type to search packages...</div>
       </div>
-      <div class="search-footer">
-        <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
-        <span><kbd>&crarr;</kbd> open</span>
-        <span><kbd>esc</kbd> close</span>
+      <div class="flex items-center gap-4 px-4 py-2.5 border-t border-[var(--card-border)] bg-[var(--code-bg)] text-[0.75rem] text-[var(--text-muted)]">
+        <span><kbd class="inline-block font-sans text-[0.65rem] px-[5px] py-[1px] border border-[var(--card-border)] rounded-[3px] bg-[var(--card-bg)] text-[var(--text-muted)] mx-0.5">&uarr;</kbd><kbd class="inline-block font-sans text-[0.65rem] px-[5px] py-[1px] border border-[var(--card-border)] rounded-[3px] bg-[var(--card-bg)] text-[var(--text-muted)] mx-0.5">&darr;</kbd> navigate</span>
+        <span><kbd class="inline-block font-sans text-[0.65rem] px-[5px] py-[1px] border border-[var(--card-border)] rounded-[3px] bg-[var(--card-bg)] text-[var(--text-muted)] mx-0.5">&crarr;</kbd> open</span>
+        <span><kbd class="inline-block font-sans text-[0.65rem] px-[5px] py-[1px] border border-[var(--card-border)] rounded-[3px] bg-[var(--card-bg)] text-[var(--text-muted)] mx-0.5">esc</kbd> close</span>
       </div>
     </div>
   </div>
 
   <!-- Hero -->
-  <section class="hero">
-    <h1>Homebrew <span class="accent">Den</span></h1>
-    <p class="tagline">A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc.</p>
-    <div class="install-box">
-      <code id="tap-command">brew tap mrdemonwolf/den</code>
-      <button class="copy-btn" onclick="copyText('tap-command', this)" aria-label="Copy install command">
-        <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <section class="bg-[var(--hero-gradient)] border-b border-[var(--card-border)] py-20 px-6 text-center transition-[background,border-color] duration-200 ease-in-out max-sm:py-12 max-sm:px-4">
+    <h1 class="text-[2.5rem] font-extrabold mb-3 tracking-tight max-sm:text-[1.75rem]">Homebrew <span class="text-accent">Den</span></h1>
+    <p class="text-lg text-[var(--text-muted)] mb-9 max-w-[480px] mx-auto max-sm:text-base">A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc.</p>
+    <div class="inline-flex items-center gap-3 bg-[var(--code-bg)] border border-[var(--code-border)] rounded-md px-5 py-3.5 font-mono text-[0.95rem] text-[var(--text)] shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:text-[0.85rem] max-sm:px-4 max-sm:py-3">
+      <code class="select-all" id="tap-command">brew tap mrdemonwolf/den</code>
+      <button class="copy-btn flex items-center justify-center w-8 h-8 border-none rounded-sm bg-accent text-white cursor-pointer transition-all duration-200 ease-in-out hover:bg-accent-hover hover:scale-105 shrink-0" onclick="copyText('tap-command', this)" aria-label="Copy install command">
+        <svg class="icon-copy w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
         </svg>
-        <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <svg class="icon-check w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </button>
@@ -97,36 +97,36 @@
   </section>
 
   <!-- How to Use -->
-  <section class="section">
-    <h2 class="section-title">How to Use</h2>
-    <p class="section-subtitle">Get up and running in three easy steps.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">1</div>
-        <h3>Add the Tap</h3>
-        <p>Register the Homebrew Den tap on your machine.</p>
-        <code>brew tap mrdemonwolf/den</code>
+  <section class="max-w-[960px] mx-auto py-16 px-6 max-sm:py-10 max-sm:px-4">
+    <h2 class="text-[1.75rem] font-bold mb-2 tracking-tight max-sm:text-[1.375rem]">How to Use</h2>
+    <p class="text-[var(--text-muted)] mb-8 text-base">Get up and running in three easy steps.</p>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5 max-sm:grid-cols-1">
+      <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 transition-all duration-200 ease-in-out hover:border-accent hover:shadow-[var(--shadow)]">
+        <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-accent text-white text-[0.8rem] font-bold mb-3">1</div>
+        <h3 class="text-base font-semibold mb-2">Add the Tap</h3>
+        <p class="text-[var(--text-muted)] text-[0.9rem] mb-3">Register the Homebrew Den tap on your machine.</p>
+        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-accent overflow-x-auto">brew tap mrdemonwolf/den</code>
       </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <h3>Install a Package</h3>
-        <p>Install any formula or cask from the tap.</p>
-        <code>brew install &lt;formula&gt;</code>
+      <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 transition-all duration-200 ease-in-out hover:border-accent hover:shadow-[var(--shadow)]">
+        <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-accent text-white text-[0.8rem] font-bold mb-3">2</div>
+        <h3 class="text-base font-semibold mb-2">Install a Package</h3>
+        <p class="text-[var(--text-muted)] text-[0.9rem] mb-3">Install any formula or cask from the tap.</p>
+        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-accent overflow-x-auto">brew install &lt;formula&gt;</code>
       </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <h3>Stay Updated</h3>
-        <p>Keep your packages up to date with Homebrew.</p>
-        <code>brew update &amp;&amp; brew upgrade</code>
+      <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 transition-all duration-200 ease-in-out hover:border-accent hover:shadow-[var(--shadow)]">
+        <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-accent text-white text-[0.8rem] font-bold mb-3">3</div>
+        <h3 class="text-base font-semibold mb-2">Stay Updated</h3>
+        <p class="text-[var(--text-muted)] text-[0.9rem] mb-3">Keep your packages up to date with Homebrew.</p>
+        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-accent overflow-x-auto">brew update &amp;&amp; brew upgrade</code>
       </div>
     </div>
   </section>
 
   <!-- Formulae -->
-  <section class="section packages-section" id="formulae-section">
-    <h2 class="section-title">Formulae</h2>
-    <p class="section-subtitle">Command-line tools available in the tap.</p>
-    <div class="table-wrap">
+  <section class="max-w-[960px] mx-auto py-16 px-6 border-t border-[var(--card-border)] transition-[border-color] duration-200 ease-in-out max-sm:py-10 max-sm:px-4" id="formulae-section">
+    <h2 class="text-[1.75rem] font-bold mb-2 tracking-tight max-sm:text-[1.375rem]">Formulae</h2>
+    <p class="text-[var(--text-muted)] mb-8 text-base">Command-line tools available in the tap.</p>
+    <div class="table-wrap bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md overflow-hidden shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:rounded-none max-sm:border-x-0">
       <table>
         <thead>
           <tr>
@@ -142,10 +142,10 @@
   </section>
 
   <!-- Casks -->
-  <section class="section packages-section" id="casks-section">
-    <h2 class="section-title">Casks</h2>
-    <p class="section-subtitle">macOS applications available in the tap.</p>
-    <div class="table-wrap">
+  <section class="max-w-[960px] mx-auto py-16 px-6 border-t border-[var(--card-border)] transition-[border-color] duration-200 ease-in-out max-sm:py-10 max-sm:px-4" id="casks-section">
+    <h2 class="text-[1.75rem] font-bold mb-2 tracking-tight max-sm:text-[1.375rem]">Casks</h2>
+    <p class="text-[var(--text-muted)] mb-8 text-base">macOS applications available in the tap.</p>
+    <div class="table-wrap bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md overflow-hidden shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:rounded-none max-sm:border-x-0">
       <table>
         <thead>
           <tr>
@@ -161,13 +161,13 @@
   </section>
 
   <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-inner">
+  <footer class="border-t border-[var(--card-border)] py-8 px-6 text-center text-[var(--text-muted)] text-[0.85rem] transition-[border-color] duration-200 ease-in-out">
+    <div class="max-w-[960px] mx-auto flex items-center justify-center gap-2 flex-wrap">
       <span>MIT License</span>
-      <span class="footer-sep">&middot;</span>
-      <span>&copy; 2026 <a href="https://www.mrdemonwolf.com" target="_blank" rel="noopener noreferrer">MrDemonWolf, Inc.</a></span>
-      <span class="footer-sep">&middot;</span>
-      <a href="https://github.com/mrdemonwolf/homebrew-den" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span class="text-[var(--card-border)]">&middot;</span>
+      <span>&copy; 2026 <a href="https://www.mrdemonwolf.com" class="text-[var(--text-muted)] transition-colors duration-200 ease-in-out hover:text-accent" target="_blank" rel="noopener noreferrer">MrDemonWolf, Inc.</a></span>
+      <span class="text-[var(--card-border)]">&middot;</span>
+      <a href="https://github.com/mrdemonwolf/homebrew-den" class="text-[var(--text-muted)] transition-colors duration-200 ease-in-out hover:text-accent" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
   </footer>
 
@@ -198,16 +198,16 @@
         return `
         <tr>
           <td data-label="Name">
-            <a href="${href}" class="pkg-name"${target}>${pkg.name}</a>
+            <a href="${href}" class="font-semibold text-accent"${target}>${pkg.name}</a>
           </td>
           <td data-label="Version">
-            <span class="pkg-version">v${pkg.version}</span>${stabilityBadge(pkg.stability)}
+            <span class="font-mono text-[0.8rem] bg-accent-subtle text-accent px-2 py-0.5 rounded-xl whitespace-nowrap">v${pkg.version}</span>${stabilityBadge(pkg.stability)}
           </td>
           <td data-label="Description">${pkg.desc}</td>
           <td data-label="Install">
-            <span class="pkg-install">
+            <span class="font-mono text-[0.85rem] text-[var(--text-muted)] inline-flex items-center gap-2">
               <code>${installPrefix}${pkg.name}</code>
-              <button class="copy-sm" onclick="copyCommand('${installPrefix}${pkg.name}', this)" aria-label="Copy install command">
+              <button class="copy-sm inline-flex items-center justify-center w-6 h-6 border-none rounded-sm bg-transparent text-[var(--text-muted)] cursor-pointer transition-all duration-200 ease-in-out hover:text-accent hover:bg-accent-subtle" onclick="copyCommand('${installPrefix}${pkg.name}', this)" aria-label="Copy install command">
                 ${copyIcon}
               </button>
             </span>
@@ -258,7 +258,11 @@
     const html = document.documentElement;
 
     function setTheme(theme) {
-      html.setAttribute('data-theme', theme);
+      if (theme === 'dark') {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
       localStorage.setItem('theme', theme);
       const sun = themeToggle.querySelector('.icon-sun');
       const moon = themeToggle.querySelector('.icon-moon');
@@ -281,7 +285,7 @@
     }
 
     themeToggle.addEventListener('click', () => {
-      const current = html.getAttribute('data-theme');
+      const current = html.classList.contains('dark') ? 'dark' : 'light';
       setTheme(current === 'dark' ? 'light' : 'dark');
     });
 
@@ -294,7 +298,7 @@
 
     // Detect OS for keyboard hint
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    document.querySelector('.search-kbd').textContent = isMac ? '\u2318K' : 'Ctrl+K';
+    document.getElementById('search-kbd').textContent = isMac ? '\u2318K' : 'Ctrl+K';
 
     function buildSearchIndex() {
       const items = [];
@@ -325,7 +329,7 @@
 
     function renderSearchResults(query) {
       if (!query.trim()) {
-        searchResults.innerHTML = '<div class="search-empty">Type to search packages...</div>';
+        searchResults.innerHTML = '<div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]">Type to search packages...</div>';
         activeIndex = -1;
         return;
       }
@@ -337,20 +341,20 @@
       );
 
       if (matches.length === 0) {
-        searchResults.innerHTML = '<div class="search-empty">No packages found.</div>';
+        searchResults.innerHTML = '<div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]">No packages found.</div>';
         activeIndex = -1;
         return;
       }
 
       searchResults.innerHTML = matches.map((item, i) => `
-        <a href="${item.href}" class="search-result${i === activeIndex ? ' active' : ''}" data-index="${i}">
-          <div class="search-result-left">
-            <span class="search-result-name">${item.name}</span>
-            <span class="search-result-desc">${item.desc}</span>
+        <a href="${item.href}" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle${i === activeIndex ? ' active' : ''}" data-index="${i}">
+          <div class="flex flex-col gap-0.5 min-w-0">
+            <span class="font-semibold text-accent text-[0.95rem]">${item.name}</span>
+            <span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">${item.desc}</span>
           </div>
-          <div class="search-result-right">
-            <span class="search-result-badge">${item.type}</span>
-            <span class="search-result-version">v${item.version}</span>
+          <div class="flex items-center gap-2 shrink-0 ml-4">
+            <span class="text-[0.7rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-xl bg-accent-subtle text-accent">${item.type}</span>
+            <span class="font-mono text-[0.75rem] text-[var(--text-muted)]">v${item.version}</span>
           </div>
         </a>
       `).join('');
