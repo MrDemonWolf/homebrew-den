@@ -180,11 +180,21 @@
     const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
     // --- Stability badge helper ---
+    const BADGE = 'inline-block font-sans text-[0.7rem] font-bold uppercase tracking-[0.04em] px-2 py-0.5 rounded-xl whitespace-nowrap align-middle';
+    const BADGE_COLORS = {
+      alpha: 'bg-[rgba(245,158,11,0.15)] text-[#f59e0b]',
+      beta: 'bg-[rgba(168,85,247,0.15)] text-[#a855f7]',
+      rc: 'bg-[rgba(59,130,246,0.15)] text-[#3b82f6]',
+      'pre-release': 'bg-[rgba(249,115,22,0.15)] text-[#f97316]',
+      stable: 'bg-[rgba(34,197,94,0.15)] text-[#22c55e]',
+      current: 'bg-accent-subtle text-accent'
+    };
+
     function stabilityBadge(stability) {
       if (!stability || stability === 'stable') return '';
       const labels = { alpha: 'Alpha', beta: 'Beta', rc: 'RC', 'pre-release': 'Pre-release' };
       const label = labels[stability] || stability;
-      return ` <span class="stability-badge stability-${stability}">${label}</span>`;
+      return ` <span class="${BADGE} ${BADGE_COLORS[stability] || ''}">${label}</span>`;
     }
 
     // --- Render tables ---
@@ -234,21 +244,21 @@
     }
 
     function showCopied(btn) {
-      btn.classList.add('copied');
+      btn.classList.add('!bg-[#22c55e]');
       btn.querySelector('.icon-copy').style.display = 'none';
       btn.querySelector('.icon-check').style.display = 'block';
       setTimeout(() => {
-        btn.classList.remove('copied');
+        btn.classList.remove('!bg-[#22c55e]');
         btn.querySelector('.icon-copy').style.display = '';
         btn.querySelector('.icon-check').style.display = 'none';
       }, 2000);
     }
 
     function showCopiedSmall(btn) {
-      btn.classList.add('copied');
+      btn.classList.add('!text-[#22c55e]');
       btn.innerHTML = checkIcon;
       setTimeout(() => {
-        btn.classList.remove('copied');
+        btn.classList.remove('!text-[#22c55e]');
         btn.innerHTML = copyIcon;
       }, 2000);
     }
@@ -346,8 +356,9 @@
         return;
       }
 
+      const activeClasses = 'bg-accent-subtle border-l-[3px] border-l-accent !pl-[13px]';
       searchResults.innerHTML = matches.map((item, i) => `
-        <a href="${item.href}" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle${i === activeIndex ? ' active' : ''}" data-index="${i}">
+        <a href="${item.href}" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle${i === activeIndex ? ' ' + activeClasses : ''}" data-index="${i}">
           <div class="flex flex-col gap-0.5 min-w-0">
             <span class="font-semibold text-accent text-[0.95rem]">${item.name}</span>
             <span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">${item.desc}</span>
@@ -360,6 +371,8 @@
       `).join('');
     }
 
+    const SEARCH_ACTIVE = ['bg-accent-subtle', 'border-l-[3px]', 'border-l-accent', '!pl-[13px]'];
+
     function navigateResults(direction) {
       const items = searchResults.querySelectorAll('.search-result');
       if (items.length === 0) return;
@@ -369,7 +382,11 @@
       if (activeIndex >= items.length) activeIndex = 0;
 
       items.forEach((el, i) => {
-        el.classList.toggle('active', i === activeIndex);
+        if (i === activeIndex) {
+          el.classList.add(...SEARCH_ACTIVE);
+        } else {
+          el.classList.remove(...SEARCH_ACTIVE);
+        }
       });
       items[activeIndex].scrollIntoView({ block: 'nearest' });
     }

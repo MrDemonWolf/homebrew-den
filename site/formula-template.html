@@ -11,7 +11,7 @@
 <body class="font-sans leading-relaxed">
   <!-- Nav -->
   <nav class="sticky top-0 z-100 bg-[var(--bg-alt)] border-b border-[var(--card-border)] backdrop-blur-md transition-[background,border-color] duration-200 ease-in-out">
-    <div class="max-w-[960px] mx-auto px-6 h-15 flex items-center justify-between">
+    <div class="max-w-[1080px] mx-auto px-6 h-15 flex items-center justify-between">
       <a href="../../" class="flex items-center gap-2.5 font-bold text-lg text-[var(--text)] no-underline">
         <svg class="w-7 h-7 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
@@ -80,7 +80,7 @@
 
   <!-- Breadcrumb -->
   <div class="border-b border-[var(--card-border)] bg-[var(--bg-alt)] transition-all duration-200 ease-in-out">
-    <div class="max-w-[960px] mx-auto px-6 py-3 text-[0.85rem] flex items-center gap-1.5">
+    <div class="max-w-[1080px] mx-auto px-6 py-3 text-[0.85rem] flex items-center gap-1.5">
       <a href="../../" class="text-[var(--text-muted)] hover:text-accent">Home</a>
       <span class="text-[var(--text-muted)]">/</span>
       <a href="../../#formulae-section" class="text-[var(--text-muted)] hover:text-accent">Formulae</a>
@@ -90,102 +90,129 @@
   </div>
 
   <!-- Formula Detail -->
-  <main class="max-w-[960px] mx-auto py-16 px-6 pt-12 max-sm:py-10 max-sm:px-4">
-    <div class="mb-8">
-      <div class="flex items-center gap-3 mb-2 flex-wrap">
-        <h1 class="text-[2rem] font-extrabold tracking-tight max-sm:text-[1.5rem]" id="formula-name"></h1>
-        <span class="font-mono text-[0.85rem] bg-accent-subtle text-accent px-2 py-0.5 rounded-xl whitespace-nowrap" id="formula-version"></span>
-        <span id="formula-stability-badge"></span>
-      </div>
-      <p class="text-[var(--text-muted)] text-[1.1rem]" id="formula-desc"></p>
-    </div>
+  <div class="max-w-[1080px] mx-auto px-6 max-sm:px-4">
+    <!-- Mobile: horizontal scrollable strip -->
+    <nav class="sticky top-[60px] z-50 -mx-6 max-sm:-mx-4 px-6 max-sm:px-4 py-2 bg-[var(--bg)] border-b border-[var(--card-border)]
+                overflow-x-auto whitespace-nowrap flex gap-2 [scrollbar-width:none] md:hidden"
+         id="sidebar-mobile" aria-label="Page sections">
+      <a href="#install-section" class="sidebar-link text-[0.8rem] font-semibold px-3 py-1.5 rounded-md
+         text-[var(--text-muted)] hover:text-accent transition-colors shrink-0" data-section="install-section">Install</a>
+      <a href="#details-section" class="sidebar-link text-[0.8rem] font-semibold px-3 py-1.5 rounded-md
+         text-[var(--text-muted)] hover:text-accent transition-colors shrink-0" data-section="details-section">Details</a>
+      <a href="#caveats-section" class="sidebar-link text-[0.8rem] font-semibold px-3 py-1.5 rounded-md
+         text-[var(--text-muted)] hover:text-accent transition-colors shrink-0 hidden" data-section="caveats-section">Caveats</a>
+      <a href="#versions-section" class="sidebar-link text-[0.8rem] font-semibold px-3 py-1.5 rounded-md
+         text-[var(--text-muted)] hover:text-accent transition-colors shrink-0 hidden" data-section="versions-section">Versions</a>
+    </nav>
 
-    <!-- Install Command -->
-    <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out">
-      <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">Install</h2>
-      <div class="inline-flex items-center gap-3 bg-[var(--code-bg)] border border-[var(--code-border)] rounded-md px-5 py-3.5 font-mono text-[0.95rem] text-[var(--text)] w-full shadow-none">
-        <code id="install-command"></code>
-        <button class="copy-btn flex items-center justify-center w-8 h-8 border-none rounded-sm bg-accent text-white cursor-pointer transition-all duration-200 ease-in-out hover:bg-accent-hover hover:scale-105 shrink-0 ml-auto" onclick="copyText('install-command', this)" aria-label="Copy install command">
-          <svg class="icon-copy w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-          </svg>
-          <svg class="icon-check w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+    <div class="flex gap-8 pt-12 pb-16 max-md:block max-md:py-10">
+      <!-- Desktop: sticky sidebar -->
+      <aside class="w-[180px] shrink-0 max-md:hidden">
+        <nav class="sticky top-[80px]" aria-label="Page sections">
+          <ul class="list-none p-0 m-0 space-y-1">
+            <li><a href="#install-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
+                rounded-md text-[var(--text-muted)] hover:text-accent hover:bg-accent-subtle
+                transition-all border-l-2 border-transparent" data-section="install-section">Install</a></li>
+            <li><a href="#details-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
+                rounded-md text-[var(--text-muted)] hover:text-accent hover:bg-accent-subtle
+                transition-all border-l-2 border-transparent" data-section="details-section">Details</a></li>
+            <li class="hidden" id="sidebar-caveats"><a href="#caveats-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
+                rounded-md text-[var(--text-muted)] hover:text-accent hover:bg-accent-subtle
+                transition-all border-l-2 border-transparent" data-section="caveats-section">Caveats</a></li>
+            <li class="hidden" id="sidebar-versions"><a href="#versions-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
+                rounded-md text-[var(--text-muted)] hover:text-accent hover:bg-accent-subtle
+                transition-all border-l-2 border-transparent" data-section="versions-section">Versions</a></li>
+          </ul>
+        </nav>
+      </aside>
 
-    <!-- Details -->
-    <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out">
-      <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">Details</h2>
-      <dl class="grid gap-0">
-        <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
-          <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Homepage</dt>
-          <dd class="text-[0.9rem]"><a id="formula-homepage" href="" target="_blank" rel="noopener noreferrer"></a></dd>
+      <!-- Main content -->
+      <main class="flex-1 min-w-0">
+        <div class="mb-8">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <h1 class="text-[2rem] font-extrabold tracking-tight max-sm:text-[1.5rem]" id="formula-name"></h1>
+            <span class="font-mono text-[0.85rem] bg-accent-subtle text-accent px-2 py-0.5 rounded-xl whitespace-nowrap" id="formula-version"></span>
+            <span id="formula-stability-badge"></span>
+          </div>
+          <p class="text-[var(--text-muted)] text-[1.1rem]" id="formula-desc"></p>
         </div>
-        <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
-          <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">License</dt>
-          <dd class="text-[0.9rem]" id="formula-license"></dd>
-        </div>
-        <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
-          <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Version</dt>
-          <dd class="text-[0.9rem]" id="formula-version-detail"></dd>
-        </div>
-        <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5" id="stability-row">
-          <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Stability</dt>
-          <dd class="text-[0.9rem]" id="formula-stability-detail"></dd>
-        </div>
-      </dl>
-    </div>
 
-    <!-- Caveats -->
-    <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out hidden" id="caveats-card">
-      <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">Caveats</h2>
-      <pre class="bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm p-4 font-mono text-[0.85rem] text-[var(--text)] whitespace-pre-wrap break-words leading-normal overflow-x-auto" id="formula-caveats"></pre>
-    </div>
+        <!-- Install Command -->
+        <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out scroll-mt-24" id="install-section">
+          <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">Install</h2>
+          <div class="inline-flex items-center gap-3 bg-[var(--code-bg)] border border-[var(--code-border)] rounded-md px-5 py-3.5 font-mono text-[0.95rem] text-[var(--text)] w-full shadow-none">
+            <code id="install-command"></code>
+            <button class="copy-btn flex items-center justify-center w-8 h-8 border-none rounded-sm bg-accent text-white cursor-pointer transition-all duration-200 ease-in-out hover:bg-accent-hover hover:scale-105 shrink-0 ml-auto" onclick="copyText('install-command', this)" aria-label="Copy install command">
+              <svg class="icon-copy w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <svg class="icon-check w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
 
-    <!-- Version History -->
-    <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out hidden" id="versions-card">
-      <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
-        </svg>
-        Version History
-      </h2>
-      <div class="table-wrap bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md overflow-hidden shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:rounded-none max-sm:border-x-0">
-        <table>
-          <thead>
-            <tr>
-              <th>Version</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="versions-body"></tbody>
-        </table>
-      </div>
-    </div>
+        <!-- Details -->
+        <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out scroll-mt-24" id="details-section">
+          <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">Details</h2>
+          <dl class="grid gap-0">
+            <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
+              <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Homepage</dt>
+              <dd class="text-[0.9rem]"><a id="formula-homepage" href="" target="_blank" rel="noopener noreferrer"></a></dd>
+            </div>
+            <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
+              <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">License</dt>
+              <dd class="text-[0.9rem]" id="formula-license"></dd>
+            </div>
+            <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
+              <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Version</dt>
+              <dd class="text-[0.9rem]" id="formula-version-detail"></dd>
+            </div>
+            <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5" id="stability-row">
+              <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Stability</dt>
+              <dd class="text-[0.9rem]" id="formula-stability-detail"></dd>
+            </div>
+          </dl>
+        </div>
 
-    <!-- README -->
-    <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out" id="readme-card">
-      <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-        README
-      </h2>
-      <div class="readme-content" id="readme-content">{{README_HTML}}</div>
+        <!-- Caveats -->
+        <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out hidden scroll-mt-24" id="caveats-section">
+          <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">Caveats</h2>
+          <pre class="bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm p-4 font-mono text-[0.85rem] text-[var(--text)] whitespace-pre-wrap break-words leading-normal overflow-x-auto" id="formula-caveats"></pre>
+        </div>
+
+        <!-- Version History -->
+        <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out hidden scroll-mt-24" id="versions-section">
+          <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Version History
+          </h2>
+          <div class="table-wrap bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md overflow-hidden shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:rounded-none max-sm:border-x-0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Version</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="versions-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
     </div>
-  </main>
+  </div>
 
   <!-- Footer -->
   <footer class="border-t border-[var(--card-border)] py-8 px-6 text-center text-[var(--text-muted)] text-[0.85rem] transition-[border-color] duration-200 ease-in-out">
-    <div class="max-w-[960px] mx-auto flex items-center justify-center gap-2 flex-wrap">
+    <div class="max-w-[1080px] mx-auto flex items-center justify-center gap-2 flex-wrap">
       <span>MIT License</span>
       <span class="text-[var(--card-border)]">&middot;</span>
       <span>&copy; 2026 <a href="https://www.mrdemonwolf.com" class="text-[var(--text-muted)] transition-colors duration-200 ease-in-out hover:text-accent" target="_blank" rel="noopener noreferrer">MrDemonWolf, Inc.</a></span>
@@ -198,6 +225,17 @@
     // --- Formula data injected at build time ---
     const formula = {{FORMULA_JSON}};
     const data = {{PACKAGES_JSON}};
+
+    // --- Badge helpers ---
+    const BADGE = 'inline-block font-sans text-[0.7rem] font-bold uppercase tracking-[0.04em] px-2 py-0.5 rounded-xl whitespace-nowrap align-middle';
+    const BADGE_COLORS = {
+      alpha: 'bg-[rgba(245,158,11,0.15)] text-[#f59e0b]',
+      beta: 'bg-[rgba(168,85,247,0.15)] text-[#a855f7]',
+      rc: 'bg-[rgba(59,130,246,0.15)] text-[#3b82f6]',
+      'pre-release': 'bg-[rgba(249,115,22,0.15)] text-[#f97316]',
+      stable: 'bg-[rgba(34,197,94,0.15)] text-[#22c55e]',
+      current: 'bg-accent-subtle text-accent'
+    };
 
     // --- Populate page ---
     document.getElementById('formula-name').textContent = formula.name;
@@ -216,54 +254,114 @@
 
     if (stability !== 'stable') {
       document.getElementById('formula-stability-badge').innerHTML =
-        '<span class="stability-badge stability-' + stability + '">' + stabilityLabel + '</span>';
+        '<span class="' + BADGE + ' ' + (BADGE_COLORS[stability] || '') + '">' + stabilityLabel + '</span>';
       document.getElementById('formula-stability-detail').innerHTML =
-        '<span class="stability-badge stability-' + stability + '">' + stabilityLabel + '</span>' +
-        '<span class="stability-hint"> &mdash; This version is not yet considered stable.</span>';
+        '<span class="' + BADGE + ' ' + (BADGE_COLORS[stability] || '') + '">' + stabilityLabel + '</span>' +
+        '<span class="text-[0.8rem] text-[var(--text-muted)]"> &mdash; This version is not yet considered stable.</span>';
     } else {
       document.getElementById('formula-stability-detail').innerHTML =
-        '<span class="stability-badge stability-stable">Stable</span>';
+        '<span class="' + BADGE + ' ' + BADGE_COLORS.stable + '">Stable</span>';
     }
 
+    // Caveats
     if (formula.caveats) {
-      document.getElementById('caveats-card').classList.remove('hidden');
+      document.getElementById('caveats-section').classList.remove('hidden');
       document.getElementById('formula-caveats').textContent = formula.caveats;
+      // Show sidebar links for caveats
+      document.getElementById('sidebar-caveats').classList.remove('hidden');
+      document.querySelectorAll('#sidebar-mobile .sidebar-link[data-section="caveats-section"]').forEach(el => el.classList.remove('hidden'));
     }
 
     // Version history
     if (formula.versions && formula.versions.length > 0) {
-      document.getElementById('versions-card').classList.remove('hidden');
+      document.getElementById('versions-section').classList.remove('hidden');
+      // Show sidebar links for versions
+      document.getElementById('sidebar-versions').classList.remove('hidden');
+      document.querySelectorAll('#sidebar-mobile .sidebar-link[data-section="versions-section"]').forEach(el => el.classList.remove('hidden'));
+
       const vtbody = document.getElementById('versions-body');
       vtbody.innerHTML = formula.versions.map(v => {
         const isCurrent = v.version === formula.version;
         const statusBadge = v.prerelease
-          ? '<span class="stability-badge stability-pre-release">Pre-release</span>'
-          : '<span class="stability-badge stability-stable">Stable</span>';
-        const currentTag = isCurrent ? ' <span class="stability-badge stability-current">Current</span>' : '';
-        return '<tr' + (isCurrent ? ' class="version-current"' : '') + '>' +
+          ? '<span class="' + BADGE + ' ' + BADGE_COLORS['pre-release'] + '">Pre-release</span>'
+          : '<span class="' + BADGE + ' ' + BADGE_COLORS.stable + '">Stable</span>';
+        const currentTag = isCurrent ? ' <span class="' + BADGE + ' ' + BADGE_COLORS.current + '">Current</span>' : '';
+        return '<tr' + (isCurrent ? ' class="bg-accent-subtle"' : '') + '>' +
           '<td data-label="Version"><span class="font-mono text-[0.8rem] bg-accent-subtle text-accent px-2 py-0.5 rounded-xl whitespace-nowrap">v' + v.version + '</span>' + currentTag + '</td>' +
           '<td data-label="Date">' + v.date + '</td>' +
           '<td data-label="Status">' + statusBadge + '</td>' +
-          '<td data-label=""><a href="' + v.url + '" target="_blank" rel="noopener noreferrer" class="version-link">Release notes</a></td>' +
+          '<td data-label=""><a href="' + v.url + '" target="_blank" rel="noopener noreferrer" class="text-accent no-underline text-[0.85rem] hover:underline">Release notes</a></td>' +
           '</tr>';
       }).join('');
     }
 
-    // Hide README card if empty
-    const readmeContent = document.getElementById('readme-content');
-    if (!readmeContent.innerHTML.trim()) {
-      document.getElementById('readme-card').classList.add('hidden');
+    // --- Sidebar: Active Section Tracking ---
+    const DESKTOP_ACTIVE = ['!text-accent', '!border-l-accent', 'bg-accent-subtle'];
+    const DESKTOP_INACTIVE = ['text-[var(--text-muted)]', 'border-transparent'];
+    const MOBILE_ACTIVE = ['!text-accent', 'bg-accent-subtle'];
+    const MOBILE_INACTIVE = ['text-[var(--text-muted)]'];
+
+    function setActiveSection(sectionId) {
+      // Desktop sidebar
+      document.querySelectorAll('aside .sidebar-link').forEach(link => {
+        if (link.dataset.section === sectionId) {
+          link.classList.add(...DESKTOP_ACTIVE);
+          link.classList.remove(...DESKTOP_INACTIVE);
+        } else {
+          link.classList.remove(...DESKTOP_ACTIVE);
+          link.classList.add(...DESKTOP_INACTIVE);
+        }
+      });
+      // Mobile strip
+      const mobileNav = document.getElementById('sidebar-mobile');
+      mobileNav.querySelectorAll('.sidebar-link').forEach(link => {
+        if (link.dataset.section === sectionId) {
+          link.classList.add(...MOBILE_ACTIVE);
+          link.classList.remove(...MOBILE_INACTIVE);
+          // Auto-scroll to keep active link centered
+          link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+          link.classList.remove(...MOBILE_ACTIVE);
+          link.classList.add(...MOBILE_INACTIVE);
+        }
+      });
     }
+
+    // IntersectionObserver for active section detection
+    function setupObserver() {
+      const sections = document.querySelectorAll('[id$="-section"]:not(.hidden)');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      }, { rootMargin: '-80px 0px -35% 0px', threshold: 0 });
+
+      sections.forEach(section => observer.observe(section));
+      return observer;
+    }
+
+    let sectionObserver = setupObserver();
+
+    // Re-observe when hidden cards become visible (MutationObserver)
+    const mutationObserver = new MutationObserver(() => {
+      sectionObserver.disconnect();
+      sectionObserver = setupObserver();
+    });
+    document.querySelectorAll('[id$="-section"]').forEach(el => {
+      mutationObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
 
     // --- Copy function ---
     function copyText(elementId, btn) {
       const text = document.getElementById(elementId).textContent;
       navigator.clipboard.writeText(text).then(() => {
-        btn.classList.add('copied');
+        btn.classList.add('!bg-[#22c55e]');
         btn.querySelector('.icon-copy').style.display = 'none';
         btn.querySelector('.icon-check').style.display = 'block';
         setTimeout(() => {
-          btn.classList.remove('copied');
+          btn.classList.remove('!bg-[#22c55e]');
           btn.querySelector('.icon-copy').style.display = '';
           btn.querySelector('.icon-check').style.display = 'none';
         }, 2000);
@@ -328,6 +426,7 @@
     }
 
     const searchIndex = buildSearchIndex();
+    const SEARCH_ACTIVE = ['bg-accent-subtle', 'border-l-[3px]', 'border-l-accent', '!pl-[13px]'];
 
     function openSearch() {
       searchOverlay.classList.remove('hidden');
@@ -362,8 +461,9 @@
         return;
       }
 
+      const activeClasses = SEARCH_ACTIVE.join(' ');
       searchResults.innerHTML = matches.map((item, i) => `
-        <a href="${item.href}" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle${i === activeIndex ? ' active' : ''}" data-index="${i}">
+        <a href="${item.href}" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle${i === activeIndex ? ' ' + activeClasses : ''}" data-index="${i}">
           <div class="flex flex-col gap-0.5 min-w-0">
             <span class="font-semibold text-accent text-[0.95rem]">${item.name}</span>
             <span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">${item.desc}</span>
@@ -382,7 +482,13 @@
       activeIndex += direction;
       if (activeIndex < 0) activeIndex = items.length - 1;
       if (activeIndex >= items.length) activeIndex = 0;
-      items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
+      items.forEach((el, i) => {
+        if (i === activeIndex) {
+          el.classList.add(...SEARCH_ACTIVE);
+        } else {
+          el.classList.remove(...SEARCH_ACTIVE);
+        }
+      });
       items[activeIndex].scrollIntoView({ block: 'nearest' });
     }
 
