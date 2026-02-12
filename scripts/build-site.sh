@@ -55,7 +55,6 @@ declare -a formula_descs=()
 declare -a formula_homepages=()
 declare -a formula_licenses=()
 declare -a formula_caveats=()
-declare -a formula_readmes=()
 declare -a formula_stabilities=()
 declare -a formula_releases_json=()
 
@@ -77,21 +76,6 @@ for rb in "$REPO_ROOT"/Formula/*.rb; do
   formula_homepages+=("$homepage")
   formula_licenses+=("$license")
   formula_caveats+=("$caveats")
-
-  # Fetch README from GitHub API if homepage is a GitHub URL
-  readme_html=""
-  if echo "$homepage" | grep -q 'github\.com/'; then
-    repo_path=$(echo "$homepage" | sed 's|https://github.com/||')
-    echo "Fetching README for $name from $repo_path..."
-    auth_header=""
-    if [ -n "${GITHUB_TOKEN:-}" ]; then
-      auth_header="-H \"Authorization: token $GITHUB_TOKEN\""
-    fi
-    readme_html=$(curl -sf -H "Accept: application/vnd.github.html" \
-      ${GITHUB_TOKEN:+-H "Authorization: token $GITHUB_TOKEN"} \
-      "https://api.github.com/repos/$repo_path/readme" 2>/dev/null || echo "")
-  fi
-  formula_readmes+=("$readme_html")
 
   # Determine stability + fetch all releases for version history
   stability="stable"
@@ -221,8 +205,6 @@ for i in "${!formula_names[@]}"; do
   formula_json=$(printf '{"name":"%s","version":"%s","desc":"%s","homepage":"%s","license":"%s","caveats":"%s","stability":"%s","versions":%s}' \
     "$fname" "${formula_versions[$i]}" "${formula_descs[$i]}" "${formula_homepages[$i]}" "${formula_licenses[$i]}" "$escaped_caveats" "${formula_stabilities[$i]}" "$versions_data")
 
-  readme_content="${formula_readmes[$i]}"
-
   # Build the page using printf to avoid sed escape issues across platforms
   {
     while IFS= read -r line || [ -n "$line" ]; do
@@ -239,11 +221,6 @@ for i in "${!formula_names[@]}"; do
           printf '%s' "${line%%'{{PACKAGES_JSON}}'*}"
           printf '%s' "$packages_json"
           printf '%s\n' "${line#*'{{PACKAGES_JSON}}'}"
-          ;;
-        *'{{README_HTML}}'*)
-          printf '%s' "${line%%'{{README_HTML}}'*}"
-          printf '%s' "$readme_content"
-          printf '%s\n' "${line#*'{{README_HTML}}'}"
           ;;
         *)
           printf '%s\n' "$line"
