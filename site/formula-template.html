@@ -282,9 +282,15 @@
       const vtbody = document.getElementById('versions-body');
       vtbody.innerHTML = formula.versions.map(v => {
         const isCurrent = v.version === formula.version;
-        const statusBadge = v.prerelease
-          ? '<span class="' + BADGE + ' ' + BADGE_COLORS['pre-release'] + '">Pre-release</span>'
-          : '<span class="' + BADGE + ' ' + BADGE_COLORS.stable + '">Stable</span>';
+        let vStability = 'stable';
+        if (v.prerelease) vStability = 'pre-release';
+        else if (/^0\./.test(v.version)) vStability = 'alpha';
+        if (/-(alpha)/i.test(v.version)) vStability = 'alpha';
+        else if (/-(beta)/i.test(v.version)) vStability = 'beta';
+        else if (/-(rc)/i.test(v.version)) vStability = 'rc';
+        else if (/-(dev|canary|nightly|preview)/i.test(v.version)) vStability = 'pre-release';
+        const vLabel = stabilityLabels[vStability] || vStability;
+        const statusBadge = '<span class="' + BADGE + ' ' + (BADGE_COLORS[vStability] || '') + '">' + vLabel + '</span>';
         const currentTag = isCurrent ? ' <span class="' + BADGE + ' ' + BADGE_COLORS.current + '">Current</span>' : '';
         return '<tr' + (isCurrent ? ' class="bg-accent-subtle"' : '') + '>' +
           '<td data-label="Version"><span class="font-mono text-[0.8rem] bg-accent-subtle text-accent px-2 py-0.5 rounded-xl whitespace-nowrap">v' + v.version + '</span>' + currentTag + '</td>' +
