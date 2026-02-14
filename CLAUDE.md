@@ -17,7 +17,7 @@ homebrew-den/
 │   ├── formula-template.html  # Per-formula detail page template
 │   ├── input.css        # Tailwind CSS source (theme config + custom styles)
 │   └── favicon.svg      # SVG favicon (brew cup icon)
-├── package.json         # Node.js deps (tailwindcss, @tailwindcss/cli)
+├── package.json         # Node.js deps (tailwindcss, vitest, cheerio)
 ├── scripts/
 │   └── build-site.sh    # Parses .rb files, builds _site/
 ├── tests/
@@ -108,4 +108,6 @@ brew untap mrdemonwolf/den           # Remove the tap
 brew install --cask Casks/<name>.rb  # Test a cask locally
 npm install                          # Install Node.js dependencies
 bash scripts/build-site.sh          # Build the documentation site
+npm test                             # Run test suite
+npm run test:watch                   # Run tests in watch mode
 ```

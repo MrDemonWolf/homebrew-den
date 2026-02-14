@@ -14,7 +14,7 @@ brew install --cask <name>      # macOS apps
 
 | Formula | Version | Stability | Description |
 | ------- | ------- | --------- | ----------- |
-| `iconwolf` | 0.0.2 | Alpha | Cross-platform app icon generator for Expo/React Native projects |
+| `iconwolf` | 0.0.6 | Alpha | Cross-platform app icon generator for Expo/React Native projects |
 
 ## Available Casks
 
@@ -30,12 +30,13 @@ The site auto-rebuilds on every push to `main` and includes:
 
 - Dark/light theme with system preference detection
 - Cmd+K / Ctrl+K search palette for quick package lookup
-- Per-formula detail pages with install commands, metadata, and README from the source repo
+- Per-formula detail pages with install commands, metadata, caveats, and version history
 - Stability badges (Alpha, Beta, RC, Pre-release) based on semver and GitHub Releases
 
 To build locally:
 
 ```sh
+npm install                # Install dependencies (first time only)
 bash scripts/build-site.sh
 open _site/index.html
 ```
@@ -68,6 +69,17 @@ Test the cask locally before pushing:
 
 ```sh
 brew install --cask Casks/<name>.rb
+```
+
+## Contributing
+
+### Running Tests
+
+Tests run automatically on every push and PR via CI. To run locally:
+
+```sh
+npm install
+npm test
 ```
 
 ## License
