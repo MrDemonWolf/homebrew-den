@@ -20,9 +20,17 @@ homebrew-den/
 ├── package.json         # Node.js deps (tailwindcss, @tailwindcss/cli)
 ├── scripts/
 │   └── build-site.sh    # Parses .rb files, builds _site/
+├── tests/
+│   ├── helpers.js              # Shared test utilities
+│   ├── build-output.test.js    # Build + output validation tests
+│   ├── stability.test.js       # Stability detection tests
+│   ├── formula-validation.test.js  # .rb file field validation tests
+│   └── html-content.test.js    # HTML DOM structure tests
+├── vitest.config.js     # Vitest configuration
 ├── .github/
 │   └── workflows/
-│       └── deploy-site.yml  # Build + deploy to GitHub Pages on push to main
+│       ├── deploy-site.yml  # Build + deploy to GitHub Pages on push to main
+│       └── ci.yml           # CI: tests on push to main + PRs
 ├── LICENSE              # MIT — Copyright (c) 2026 MrDemonWolf, Inc.
 ├── README.md            # Tap usage, available packages, contributor guide
 └── CLAUDE.md            # This file
@@ -67,6 +75,28 @@ The build script:
 5. Copies CSS and favicon to `_site/`
 
 Supports `GITHUB_TOKEN` env var for authenticated API requests in CI.
+
+## Testing
+
+The project uses **Vitest** + **cheerio** for automated testing. Tests run against the real build output (`_site/`) produced by the build script.
+
+### Test files
+- `tests/helpers.js` — Shared utilities (paths, `runBuild()`, `loadHTML()`)
+- `tests/build-output.test.js` — Build execution, file structure, template substitution, JSON validity, metadata
+- `tests/stability.test.js` — Pure JS stability detection logic (mirrors bash semver rules)
+- `tests/formula-validation.test.js` — `.rb` file field validation (desc, homepage, version, license, sha256, test block)
+- `tests/html-content.test.js` — Generated HTML DOM structure, elements, links, cross-page references
+
+### Running tests
+
+```sh
+npm test              # Run all tests once
+npm run test:watch    # Watch mode for development
+```
+
+### CI
+
+Tests run automatically on every push to `main` and on pull requests via `.github/workflows/ci.yml`.
 
 ## Useful Commands
 

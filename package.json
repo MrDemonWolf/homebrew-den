@@ -1,7 +1,13 @@
 {
   "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "devDependencies": {
+    "@tailwindcss/cli": "^4",
+    "cheerio": "^1.0.0",
     "tailwindcss": "^4",
-    "@tailwindcss/cli": "^4"
+    "vitest": "^3"
   }
 }
