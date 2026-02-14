@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { load } from "cheerio";
 
@@ -12,10 +12,15 @@ let built = false;
 
 /**
  * Run the build script once. Subsequent calls are no-ops.
- * Returns the build stdout.
+ * Skips the build if _site/index.html already exists (e.g. CI pre-built it).
+ * Returns the build stdout (empty string if skipped).
  */
 export function runBuild() {
   if (built) return "";
+  if (existsSync(path.join(SITE_DIR, "index.html"))) {
+    built = true;
+    return "";
+  }
   const out = execSync("bash scripts/build-site.sh", {
     cwd: ROOT,
     encoding: "utf-8",
