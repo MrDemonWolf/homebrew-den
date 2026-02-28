@@ -1,13 +1,13 @@
 class Iconwolf < Formula
   desc "Cross-platform app icon generator for Expo/React Native projects"
   homepage "https://github.com/MrDemonWolf/iconwolf"
-  version "0.0.7"
+  version "0.2.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.0.7/iconwolf-macos-arm64.tar.gz"
-      sha256 "8d5cdc89369387f317cecb040606e7176e93a52d089b05a97400787fcfe767b7"
+      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.2.0/iconwolf-macos-arm64.tar.gz"
+      sha256 "5a208e3f10f6b54d9c95a8a6af2d639222c0350a6f1829e580835bce1ea7c383"
     end
   end
 
@@ -24,12 +24,13 @@ class Iconwolf < Formula
         iconwolf AppIcon.icon            # From Apple Icon Composer
         iconwolf app-icon.png            # From any square PNG
 
-      By default, generates 5 files to ./assets/images/:
-        icon.png, splash-icon.png, and android-icon-{foreground,background,monochrome}.png
+      By default, generates 4 files to ./assets/images/:
+        icon.png, adaptive-icon.png, splash-icon.png, favicon.png
 
       Common flags:
-        --favicon              Add a 48x48 rounded web favicon (opt-in)
-        --android              Android adaptive icons only
+        --splash-input <path>  Use a separate image for the splash screen
+        --android              All Android adaptive icons (adds background + monochrome)
+        --favicon              Favicon only
         --icon                 Standard icon.png only
         --splash               Splash screen icon only
         -o, --output <dir>     Custom output directory
@@ -40,6 +41,6 @@ class Iconwolf < Formula
   end
 
   test do
-    assert_match "0.0.7", shell_output("#{bin}/iconwolf --version")
+    assert_match "0.2.0", shell_output("#{bin}/iconwolf --version")
   end
 end
