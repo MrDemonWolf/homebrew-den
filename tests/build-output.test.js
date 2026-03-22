@@ -110,7 +110,7 @@ describe("Iconwolf metadata", () => {
   });
 
   it("has correct version", () => {
-    expect(formula.version).toBe("0.0.6");
+    expect(formula.version).toBe("0.4.0");
   });
 
   it("has correct description", () => {
@@ -133,7 +133,7 @@ describe("Iconwolf metadata", () => {
 
   it("has caveats content", () => {
     expect(formula.caveats).toBeTruthy();
-    expect(formula.caveats).toContain("iconwolf --help");
+    expect(formula.caveats).toContain("iconwolf");
   });
 
   it("formula page JSON has versions array (when API available)", () => {
