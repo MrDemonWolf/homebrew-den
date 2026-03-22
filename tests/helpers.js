@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { load } from "cheerio";
+import { expect } from "vitest";
 
 export const ROOT = path.resolve(import.meta.dirname, "..");
 export const SITE_DIR = path.join(ROOT, "_site");
@@ -44,4 +45,68 @@ export function loadHTML(relativePath) {
  */
 export function readSiteFile(relativePath) {
   return readFileSync(path.join(SITE_DIR, relativePath), "utf-8");
+}
+
+/**
+ * Extract a JSON object assigned to a JS variable from HTML source.
+ * e.g. extractJSON(html, "data") parses `const data = {...};`
+ */
+export function extractJSON(html, varName) {
+  const match = html.match(new RegExp(`const ${varName} = ({.*?});`, "s"));
+  expect(match).not.toBeNull();
+  return JSON.parse(match[1]);
+}
+
+/**
+ * Assert a file exists inside _site/.
+ */
+export function expectFileExists(...segments) {
+  expect(existsSync(path.join(SITE_DIR, ...segments))).toBe(true);
+}
+
+/**
+ * Assert a template placeholder is not present in the HTML string.
+ */
+export function expectNoPlaceholder(html, placeholder) {
+  expect(html).not.toContain(`{{${placeholder}}}`);
+}
+
+/**
+ * Extract a formula field value using a regex pattern.
+ * Returns the first capture group match.
+ */
+export function extractFormulaField(content, regex) {
+  const match = content.match(regex);
+  expect(match).not.toBeNull();
+  return match[1];
+}
+
+/**
+ * Pure JS implementation of the bash stability detection logic
+ * from scripts/build-site.sh.
+ */
+export function detectStability(version, { isGitHubPrerelease = false } = {}) {
+  let stability = "stable";
+
+  if (isGitHubPrerelease) {
+    stability = "pre-release";
+  }
+
+  if (/^0\./.test(version) && stability === "stable") {
+    stability = "alpha";
+  }
+
+  if (/-(alpha|beta|rc|dev|canary|nightly|preview)/i.test(version)) {
+    if (/alpha/i.test(version)) {
+      stability = "alpha";
+    } else if (/beta/i.test(version)) {
+      stability = "beta";
+    } else if (/rc/i.test(version)) {
+      stability = "rc";
+    } else {
+      stability = "pre-release";
+    }
+  }
+
+  return stability;
 }

@@ -1,37 +1,5 @@
 import { describe, it, expect } from "vitest";
-
-/**
- * Pure JS implementation of the bash stability detection logic
- * from scripts/build-site.sh (lines 128-142).
- */
-function detectStability(version, { isGitHubPrerelease = false } = {}) {
-  let stability = "stable";
-
-  // GitHub prerelease flag
-  if (isGitHubPrerelease) {
-    stability = "pre-release";
-  }
-
-  // Semver: 0.x.x is alpha (overrides stable, but not an explicit pre-release flag)
-  if (/^0\./.test(version) && stability === "stable") {
-    stability = "alpha";
-  }
-
-  // Version suffix detection (highest priority)
-  if (/-(alpha|beta|rc|dev|canary|nightly|preview)/i.test(version)) {
-    if (/alpha/i.test(version)) {
-      stability = "alpha";
-    } else if (/beta/i.test(version)) {
-      stability = "beta";
-    } else if (/rc/i.test(version)) {
-      stability = "rc";
-    } else {
-      stability = "pre-release";
-    }
-  }
-
-  return stability;
-}
+import { detectStability } from "./helpers.js";
 
 describe("Stability detection", () => {
   it("detects 0.x.x as alpha", () => {
