@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
-import { runBuild, SITE_DIR, readSiteFile } from "./helpers.js";
+import {
+  runBuild,
+  SITE_DIR,
+  readSiteFile,
+  extractJSON,
+  expectFileExists,
+  expectNoPlaceholder,
+} from "./helpers.js";
 
 let buildOutput = "";
 
@@ -35,68 +42,58 @@ describe("Build execution", () => {
 
 describe("File structure", () => {
   it("generates index.html", () => {
-    expect(existsSync(path.join(SITE_DIR, "index.html"))).toBe(true);
+    expectFileExists("index.html");
   });
 
   it("generates output.css", () => {
-    expect(existsSync(path.join(SITE_DIR, "output.css"))).toBe(true);
+    expectFileExists("output.css");
   });
 
   it("copies favicon.svg", () => {
-    expect(existsSync(path.join(SITE_DIR, "favicon.svg"))).toBe(true);
+    expectFileExists("favicon.svg");
+  });
+
+  it("copies shared.js", () => {
+    expectFileExists("shared.js");
   });
 
   it("generates iconwolf formula page", () => {
-    expect(
-      existsSync(path.join(SITE_DIR, "formulae/iconwolf/index.html")),
-    ).toBe(true);
+    expectFileExists("formulae", "iconwolf", "index.html");
   });
 });
 
 describe("Template substitution", () => {
   it("no leftover {{PACKAGES_JSON}} in index.html", () => {
-    const html = readSiteFile("index.html");
-    expect(html).not.toContain("{{PACKAGES_JSON}}");
+    expectNoPlaceholder(readSiteFile("index.html"), "PACKAGES_JSON");
   });
 
   it("no leftover {{FORMULA_JSON}} in formula page", () => {
-    const html = readSiteFile("formulae/iconwolf/index.html");
-    expect(html).not.toContain("{{FORMULA_JSON}}");
+    expectNoPlaceholder(readSiteFile("formulae/iconwolf/index.html"), "FORMULA_JSON");
   });
 
   it("no leftover {{FORMULA_NAME}} in formula page", () => {
-    const html = readSiteFile("formulae/iconwolf/index.html");
-    expect(html).not.toContain("{{FORMULA_NAME}}");
+    expectNoPlaceholder(readSiteFile("formulae/iconwolf/index.html"), "FORMULA_NAME");
   });
 
   it("no leftover {{PACKAGES_JSON}} in formula page", () => {
-    const html = readSiteFile("formulae/iconwolf/index.html");
-    expect(html).not.toContain("{{PACKAGES_JSON}}");
+    expectNoPlaceholder(readSiteFile("formulae/iconwolf/index.html"), "PACKAGES_JSON");
   });
 });
 
 describe("JSON validity", () => {
   it("injected packages JSON in index.html is parseable", () => {
-    const html = readSiteFile("index.html");
-    const match = html.match(/const data = ({.*?});/s);
-    expect(match).not.toBeNull();
-    const parsed = JSON.parse(match[1]);
+    const parsed = extractJSON(readSiteFile("index.html"), "data");
     expect(parsed).toBeDefined();
   });
 
   it("packages data has formulae and casks arrays", () => {
-    const html = readSiteFile("index.html");
-    const match = html.match(/const data = ({.*?});/s);
-    const parsed = JSON.parse(match[1]);
+    const parsed = extractJSON(readSiteFile("index.html"), "data");
     expect(Array.isArray(parsed.formulae)).toBe(true);
     expect(Array.isArray(parsed.casks)).toBe(true);
   });
 
   it("injected formula JSON in formula page is parseable", () => {
-    const html = readSiteFile("formulae/iconwolf/index.html");
-    const match = html.match(/const formula = ({.*?});/s);
-    expect(match).not.toBeNull();
-    const parsed = JSON.parse(match[1]);
+    const parsed = extractJSON(readSiteFile("formulae/iconwolf/index.html"), "formula");
     expect(parsed).toBeDefined();
   });
 });
@@ -105,9 +102,7 @@ describe("Iconwolf metadata", () => {
   let formula;
 
   beforeAll(() => {
-    const html = readSiteFile("formulae/iconwolf/index.html");
-    const match = html.match(/const formula = ({.*?});/s);
-    formula = JSON.parse(match[1]);
+    formula = extractJSON(readSiteFile("formulae/iconwolf/index.html"), "formula");
   });
 
   it("has correct name", () => {

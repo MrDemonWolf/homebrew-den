@@ -221,21 +221,11 @@
     </div>
   </footer>
 
+  <script src="../../shared.js"></script>
   <script>
     // --- Formula data injected at build time ---
     const formula = {{FORMULA_JSON}};
     const data = {{PACKAGES_JSON}};
-
-    // --- Badge helpers ---
-    const BADGE = 'inline-block font-sans text-[0.7rem] font-bold uppercase tracking-[0.04em] px-2 py-0.5 rounded-xl whitespace-nowrap align-middle';
-    const BADGE_COLORS = {
-      alpha: 'bg-[rgba(245,158,11,0.15)] text-[#f59e0b]',
-      beta: 'bg-[rgba(168,85,247,0.15)] text-[#a855f7]',
-      rc: 'bg-[rgba(59,130,246,0.15)] text-[#3b82f6]',
-      'pre-release': 'bg-[rgba(249,115,22,0.15)] text-[#f97316]',
-      stable: 'bg-[rgba(34,197,94,0.15)] text-[#22c55e]',
-      current: 'bg-accent-subtle text-accent'
-    };
 
     // --- Populate page ---
     document.getElementById('formula-name').textContent = formula.name;
@@ -267,7 +257,6 @@
     if (formula.caveats) {
       document.getElementById('caveats-section').classList.remove('hidden');
       document.getElementById('formula-caveats').textContent = formula.caveats;
-      // Show sidebar links for caveats
       document.getElementById('sidebar-caveats').classList.remove('hidden');
       document.querySelectorAll('#sidebar-mobile .sidebar-link[data-section="caveats-section"]').forEach(el => el.classList.remove('hidden'));
     }
@@ -275,7 +264,6 @@
     // Version history
     if (formula.versions && formula.versions.length > 0) {
       document.getElementById('versions-section').classList.remove('hidden');
-      // Show sidebar links for versions
       document.getElementById('sidebar-versions').classList.remove('hidden');
       document.querySelectorAll('#sidebar-mobile .sidebar-link[data-section="versions-section"]').forEach(el => el.classList.remove('hidden'));
 
@@ -308,7 +296,6 @@
     const MOBILE_INACTIVE = ['text-[var(--text-muted)]'];
 
     function setActiveSection(sectionId) {
-      // Desktop sidebar
       document.querySelectorAll('aside .sidebar-link').forEach(link => {
         if (link.dataset.section === sectionId) {
           link.classList.add(...DESKTOP_ACTIVE);
@@ -318,13 +305,11 @@
           link.classList.add(...DESKTOP_INACTIVE);
         }
       });
-      // Mobile strip
       const mobileNav = document.getElementById('sidebar-mobile');
       mobileNav.querySelectorAll('.sidebar-link').forEach(link => {
         if (link.dataset.section === sectionId) {
           link.classList.add(...MOBILE_ACTIVE);
           link.classList.remove(...MOBILE_INACTIVE);
-          // Auto-scroll to keep active link centered
           link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         } else {
           link.classList.remove(...MOBILE_ACTIVE);
@@ -333,24 +318,19 @@
       });
     }
 
-    // IntersectionObserver for active section detection
     function setupObserver() {
       const sections = document.querySelectorAll('[id$="-section"]:not(.hidden)');
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
         });
       }, { rootMargin: '-80px 0px -35% 0px', threshold: 0 });
-
       sections.forEach(section => observer.observe(section));
       return observer;
     }
 
     let sectionObserver = setupObserver();
 
-    // Re-observe when hidden cards become visible (MutationObserver)
     const mutationObserver = new MutationObserver(() => {
       sectionObserver.disconnect();
       sectionObserver = setupObserver();
@@ -359,167 +339,9 @@
       mutationObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
     });
 
-    // --- Copy function ---
-    function copyText(elementId, btn) {
-      const text = document.getElementById(elementId).textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        btn.classList.add('!bg-[#22c55e]');
-        btn.querySelector('.icon-copy').style.display = 'none';
-        btn.querySelector('.icon-check').style.display = 'block';
-        setTimeout(() => {
-          btn.classList.remove('!bg-[#22c55e]');
-          btn.querySelector('.icon-copy').style.display = '';
-          btn.querySelector('.icon-check').style.display = 'none';
-        }, 2000);
-      });
-    }
-
-    // --- Theme toggle ---
-    const themeToggle = document.getElementById('theme-toggle');
-    const html = document.documentElement;
-
-    function setTheme(theme) {
-      if (theme === 'dark') {
-        html.classList.add('dark');
-      } else {
-        html.classList.remove('dark');
-      }
-      localStorage.setItem('theme', theme);
-      const sun = themeToggle.querySelector('.icon-sun');
-      const moon = themeToggle.querySelector('.icon-moon');
-      if (theme === 'dark') {
-        sun.style.display = 'block';
-        moon.style.display = 'none';
-      } else {
-        sun.style.display = 'none';
-        moon.style.display = 'block';
-      }
-    }
-
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-      setTheme('light');
-    } else {
-      setTheme('dark');
-    }
-
-    themeToggle.addEventListener('click', () => {
-      const current = html.classList.contains('dark') ? 'dark' : 'light';
-      setTheme(current === 'dark' ? 'light' : 'dark');
-    });
-
-    // --- Cmd+K Search ---
-    const searchOverlay = document.getElementById('search-overlay');
-    const searchInput = document.getElementById('search-input');
-    const searchResults = document.getElementById('search-results');
-    const searchTrigger = document.getElementById('search-trigger');
-    let activeIndex = -1;
-
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    document.getElementById('search-kbd').textContent = isMac ? '\u2318K' : 'Ctrl+K';
-
-    function buildSearchIndex() {
-      const items = [];
-      (data.formulae || []).forEach(f => {
-        items.push({ name: f.name, desc: f.desc, version: f.version, type: 'Formula', href: '../../formulae/' + f.name + '/' });
-      });
-      (data.casks || []).forEach(c => {
-        items.push({ name: c.name, desc: c.desc, version: c.version, type: 'Cask', href: c.homepage });
-      });
-      return items;
-    }
-
-    const searchIndex = buildSearchIndex();
-    const SEARCH_ACTIVE = ['bg-accent-subtle', 'border-l-[3px]', 'border-l-accent', '!pl-[13px]'];
-
-    function openSearch() {
-      searchOverlay.classList.remove('hidden');
-      searchInput.value = '';
-      searchInput.focus();
-      activeIndex = -1;
-      renderSearchResults('');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeSearch() {
-      searchOverlay.classList.add('hidden');
-      document.body.style.overflow = '';
-    }
-
-    function renderSearchResults(query) {
-      if (!query.trim()) {
-        searchResults.innerHTML = '<div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]">Type to search packages...</div>';
-        activeIndex = -1;
-        return;
-      }
-
-      const q = query.toLowerCase();
-      const matches = searchIndex.filter(item =>
-        item.name.toLowerCase().includes(q) ||
-        item.desc.toLowerCase().includes(q)
-      );
-
-      if (matches.length === 0) {
-        searchResults.innerHTML = '<div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]">No packages found.</div>';
-        activeIndex = -1;
-        return;
-      }
-
-      const activeClasses = SEARCH_ACTIVE.join(' ');
-      searchResults.innerHTML = matches.map((item, i) => `
-        <a href="${item.href}" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle${i === activeIndex ? ' ' + activeClasses : ''}" data-index="${i}">
-          <div class="flex flex-col gap-0.5 min-w-0">
-            <span class="font-semibold text-accent text-[0.95rem]">${item.name}</span>
-            <span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">${item.desc}</span>
-          </div>
-          <div class="flex items-center gap-2 shrink-0 ml-4">
-            <span class="text-[0.7rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-xl bg-accent-subtle text-accent">${item.type}</span>
-            <span class="font-mono text-[0.75rem] text-[var(--text-muted)]">v${item.version}</span>
-          </div>
-        </a>
-      `).join('');
-    }
-
-    function navigateResults(direction) {
-      const items = searchResults.querySelectorAll('.search-result');
-      if (items.length === 0) return;
-      activeIndex += direction;
-      if (activeIndex < 0) activeIndex = items.length - 1;
-      if (activeIndex >= items.length) activeIndex = 0;
-      items.forEach((el, i) => {
-        if (i === activeIndex) {
-          el.classList.add(...SEARCH_ACTIVE);
-        } else {
-          el.classList.remove(...SEARCH_ACTIVE);
-        }
-      });
-      items[activeIndex].scrollIntoView({ block: 'nearest' });
-    }
-
-    function selectResult() {
-      const items = searchResults.querySelectorAll('.search-result');
-      if (activeIndex >= 0 && activeIndex < items.length) items[activeIndex].click();
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        searchOverlay.classList.contains('hidden') ? openSearch() : closeSearch();
-      }
-      if (e.key === 'Escape' && !searchOverlay.classList.contains('hidden')) closeSearch();
-    });
-
-    searchInput.addEventListener('input', () => { activeIndex = -1; renderSearchResults(searchInput.value); });
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowDown') { e.preventDefault(); navigateResults(1); }
-      if (e.key === 'ArrowUp') { e.preventDefault(); navigateResults(-1); }
-      if (e.key === 'Enter') { e.preventDefault(); selectResult(); }
-    });
-
-    searchOverlay.addEventListener('click', (e) => { if (e.target === searchOverlay) closeSearch(); });
-    searchTrigger.addEventListener('click', openSearch);
+    // --- Init shared components ---
+    initTheme();
+    initSearch(data, { basePath: '../../' });
   </script>
 </body>
 </html>

@@ -11,6 +11,12 @@ CSS_OUTPUT="$REPO_ROOT/site/output.css"
 rm -rf "$SITE_DIR"
 mkdir -p "$SITE_DIR"
 
+# --- Helper: extract a quoted field from a .rb file ---
+extract_field() {
+  local rb="$1" field="$2"
+  grep -m1 "^\s*$field " "$rb" | sed "s/.*$field \"\(.*\)\"/\1/"
+}
+
 # --- Helper: extract caveats from .rb file ---
 extract_caveats() {
   local rb="$1"
@@ -62,10 +68,10 @@ for rb in "$REPO_ROOT"/Formula/*.rb; do
   [ -f "$rb" ] || continue
 
   name=$(basename "$rb" .rb)
-  desc=$(grep -m1 '^\s*desc ' "$rb" | sed 's/.*desc "\(.*\)"/\1/')
-  homepage=$(grep -m1 '^\s*homepage ' "$rb" | sed 's/.*homepage "\(.*\)"/\1/')
-  version=$(grep -m1 '^\s*version ' "$rb" | sed 's/.*version "\(.*\)"/\1/')
-  license=$(grep -m1 '^\s*license ' "$rb" | sed 's/.*license "\(.*\)"/\1/')
+  desc=$(extract_field "$rb" "desc")
+  homepage=$(extract_field "$rb" "homepage")
+  version=$(extract_field "$rb" "version")
+  license=$(extract_field "$rb" "license")
   caveats=$(extract_caveats "$rb")
 
   [ -z "$name" ] && continue
@@ -161,11 +167,11 @@ first=true
 for rb in "$REPO_ROOT"/Casks/*.rb; do
   [ -f "$rb" ] || continue
 
-  name=$(grep -m1 '^\s*cask ' "$rb" | sed 's/.*cask "\(.*\)".*/\1/')
-  version=$(grep -m1 '^\s*version ' "$rb" | sed 's/.*version "\(.*\)"/\1/')
-  desc=$(grep -m1 '^\s*desc ' "$rb" | sed 's/.*desc "\(.*\)"/\1/')
-  homepage=$(grep -m1 '^\s*homepage ' "$rb" | sed 's/.*homepage "\(.*\)"/\1/')
-  app_name=$(grep -m1 '^\s*name ' "$rb" | sed 's/.*name "\(.*\)"/\1/')
+  name=$(extract_field "$rb" "cask")
+  version=$(extract_field "$rb" "version")
+  desc=$(extract_field "$rb" "desc")
+  homepage=$(extract_field "$rb" "homepage")
+  app_name=$(extract_field "$rb" "name")
 
   [ -z "$name" ] && continue
 
@@ -237,6 +243,7 @@ npx @tailwindcss/cli -i "$CSS_INPUT" -o "$CSS_OUTPUT" --minify
 # --- Copy static assets ---
 cp "$CSS_OUTPUT" "$SITE_DIR/output.css"
 cp "$REPO_ROOT/site/favicon.svg" "$SITE_DIR/favicon.svg"
+cp "$REPO_ROOT/site/shared.js" "$SITE_DIR/shared.js"
 
 echo "Site built successfully in $SITE_DIR"
 echo "Formulae: ${#formula_names[@]}"

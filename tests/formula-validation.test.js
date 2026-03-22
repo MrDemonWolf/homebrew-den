@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import path from "node:path";
-import { FORMULA_DIR } from "./helpers.js";
+import { FORMULA_DIR, extractFormulaField } from "./helpers.js";
 
 const formulaFiles = existsSync(FORMULA_DIR)
   ? readdirSync(FORMULA_DIR).filter((f) => f.endsWith(".rb"))
@@ -13,22 +13,19 @@ describe.each(formulaFiles)("Formula: %s", (filename) => {
   const name = filename.replace(/\.rb$/, "");
 
   it("has a desc field (non-empty, <=80 chars)", () => {
-    const match = content.match(/^\s*desc\s+"(.+)"/m);
-    expect(match).not.toBeNull();
-    expect(match[1].length).toBeGreaterThan(0);
-    expect(match[1].length).toBeLessThanOrEqual(80);
+    const desc = extractFormulaField(content, /^\s*desc\s+"(.+)"/m);
+    expect(desc.length).toBeGreaterThan(0);
+    expect(desc.length).toBeLessThanOrEqual(80);
   });
 
   it("has a homepage URL starting with https://", () => {
-    const match = content.match(/^\s*homepage\s+"(.+)"/m);
-    expect(match).not.toBeNull();
-    expect(match[1]).toMatch(/^https:\/\//);
+    const homepage = extractFormulaField(content, /^\s*homepage\s+"(.+)"/m);
+    expect(homepage).toMatch(/^https:\/\//);
   });
 
   it("has a version field matching semver-ish pattern", () => {
-    const match = content.match(/^\s*version\s+"(.+)"/m);
-    expect(match).not.toBeNull();
-    expect(match[1]).toMatch(/^\d+\.\d+/);
+    const version = extractFormulaField(content, /^\s*version\s+"(.+)"/m);
+    expect(version).toMatch(/^\d+\.\d+/);
   });
 
   it("has a license field", () => {
@@ -49,8 +46,7 @@ describe.each(formulaFiles)("Formula: %s", (filename) => {
 
   it("class name matches filename (capitalized)", () => {
     const expected = name.charAt(0).toUpperCase() + name.slice(1);
-    const match = content.match(/^class\s+(\w+)\s+</m);
-    expect(match).not.toBeNull();
-    expect(match[1]).toBe(expected);
+    const className = extractFormulaField(content, /^class\s+(\w+)\s+</m);
+    expect(className).toBe(expected);
   });
 });

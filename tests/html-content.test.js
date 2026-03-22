@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { existsSync } from "node:fs";
-import path from "node:path";
-import { runBuild, loadHTML, SITE_DIR } from "./helpers.js";
+import { runBuild, loadHTML, expectFileExists } from "./helpers.js";
 
 beforeAll(() => {
   runBuild();
@@ -152,10 +150,14 @@ describe("Formula page (iconwolf)", () => {
 
 describe("Cross-page: static assets exist on disk", () => {
   it("output.css exists in _site/", () => {
-    expect(existsSync(path.join(SITE_DIR, "output.css"))).toBe(true);
+    expectFileExists("output.css");
   });
 
   it("favicon.svg exists in _site/", () => {
-    expect(existsSync(path.join(SITE_DIR, "favicon.svg"))).toBe(true);
+    expectFileExists("favicon.svg");
+  });
+
+  it("shared.js exists in _site/", () => {
+    expectFileExists("shared.js");
   });
 });
