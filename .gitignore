@@ -1,6 +1,7 @@
 _site/
 node_modules/
 site/output.css
+.DS_Store
 
 # Claude Code
 .claude
