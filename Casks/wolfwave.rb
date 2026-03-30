@@ -2,7 +2,7 @@ cask "wolfwave" do
   version "1.0.0"
   sha256 :no_check
 
-  url "https://github.com/MrDemonWolf/wolfwave/releases/download/v#{version}/WolfWave-#{version}-arm64.dmg"
+  url "https://github.com/MrDemonWolf/wolfwave/releases/download/v#{version}/WolfWave-#{version}.dmg"
   name "WolfWave"
   desc "macOS menu bar app that bridges Apple Music with Twitch, Discord, and stream overlays"
   homepage "https://mrdemonwolf.github.io/wolfwave"
