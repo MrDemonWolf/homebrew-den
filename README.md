@@ -20,7 +20,7 @@ brew install --cask <name>      # macOS apps
 
 | Cask | Description |
 | ---- | ----------- |
-| _none yet_ | Casks will be listed here as they are added |
+| `wolfwave` | macOS menu bar app that bridges Apple Music with Twitch, Discord, and stream overlays |
 
 ## Documentation Site
 
