@@ -1,6 +1,6 @@
 cask "wolfwave" do
-  version "1.1.0"
-  sha256 "90ce49a591ef0251456d9ec6f8de8f78e44263919fb4ab5fef0cc582cc5e1447"
+  version "1.2.0"
+  sha256 "90081458726d92441e527a12bf9716f79d0fef061d1fd651c5d176475bc04e63"
 
   url "https://github.com/MrDemonWolf/wolfwave/releases/download/v#{version}/WolfWave-#{version}.dmg"
   name "WolfWave"
