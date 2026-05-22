@@ -2,6 +2,16 @@
 const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
 const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
+// --- HTML escaping (defense-in-depth for any interpolated value) ---
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // --- Stability badge helper ---
 const BADGE = 'inline-block font-sans text-[0.7rem] font-bold uppercase tracking-[0.04em] px-2 py-0.5 rounded-xl whitespace-nowrap align-middle';
 const BADGE_COLORS = {
@@ -12,22 +22,40 @@ const BADGE_COLORS = {
   stable: 'bg-[rgba(34,197,94,0.15)] text-[#22c55e]',
   current: 'bg-accent-subtle text-accent'
 };
+const STABILITY_LABELS = { alpha: 'Alpha', beta: 'Beta', rc: 'RC', 'pre-release': 'Pre-release', stable: 'Stable' };
 
-function stabilityBadge(stability) {
-  if (!stability || stability === 'stable') return '';
-  const labels = { alpha: 'Alpha', beta: 'Beta', rc: 'RC', 'pre-release': 'Pre-release' };
-  const label = labels[stability] || stability;
-  return ' <span class="' + BADGE + ' ' + (BADGE_COLORS[stability] || '') + '">' + label + '</span>';
+// --- Stability detection (single source of truth, mirrors build-site.sh) ---
+function detectStability(version, options) {
+  const opts = options || {};
+  let stability = 'stable';
+
+  if (opts.isGitHubPrerelease) {
+    stability = 'pre-release';
+  }
+
+  if (/^0\./.test(version) && stability === 'stable') {
+    stability = 'alpha';
+  }
+
+  if (/-(alpha|beta|rc|dev|canary|nightly|preview)/i.test(version)) {
+    if (/alpha/i.test(version)) {
+      stability = 'alpha';
+    } else if (/beta/i.test(version)) {
+      stability = 'beta';
+    } else if (/rc/i.test(version)) {
+      stability = 'rc';
+    } else {
+      stability = 'pre-release';
+    }
+  }
+
+  return stability;
 }
 
-// --- Copy functions ---
+// --- Copy buttons ---
 function copyText(elementId, btn) {
   var text = document.getElementById(elementId).textContent;
   navigator.clipboard.writeText(text).then(function() { showCopied(btn); });
-}
-
-function copyCommand(text, btn) {
-  navigator.clipboard.writeText(text).then(function() { showCopiedSmall(btn); });
 }
 
 function showCopied(btn) {
@@ -48,6 +76,16 @@ function showCopiedSmall(btn) {
     btn.classList.remove('!text-[#22c55e]');
     btn.innerHTML = copyIcon;
   }, 2000);
+}
+
+// Delegated handler for static "copy install command" buttons.
+function initCopyButtons() {
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest && e.target.closest('.copy-sm');
+    if (!btn) return;
+    var text = btn.getAttribute('data-copy') || '';
+    navigator.clipboard.writeText(text).then(function() { showCopiedSmall(btn); });
+  });
 }
 
 // --- Theme toggle ---
@@ -76,10 +114,11 @@ function initTheme() {
   var savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
     setTheme(savedTheme);
-  } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-    setTheme('light');
-  } else {
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     setTheme('dark');
+  } else {
+    // Default to light to match the mrdemonwolf.com brand.
+    setTheme('light');
   }
 
   themeToggle.addEventListener('click', function() {
@@ -96,9 +135,10 @@ function initSearch(data, opts) {
   var searchResults = document.getElementById('search-results');
   var searchTrigger = document.getElementById('search-trigger');
   var activeIndex = -1;
+  var lastFocused = null;
 
   var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-  document.getElementById('search-kbd').textContent = isMac ? '\u2318K' : 'Ctrl+K';
+  document.getElementById('search-kbd').textContent = isMac ? '⌘K' : 'Ctrl+K';
 
   function buildSearchIndex() {
     var items = [];
@@ -106,7 +146,7 @@ function initSearch(data, opts) {
       items.push({ name: f.name, desc: f.desc, version: f.version, type: 'Formula', href: basePath + 'formulae/' + f.name + '/' });
     });
     (data.casks || []).forEach(function(c) {
-      items.push({ name: c.name, desc: c.desc, version: c.version, type: 'Cask', href: c.homepage });
+      items.push({ name: c.name, desc: c.desc, version: c.version, type: 'Cask', href: basePath + 'casks/' + c.name + '/' });
     });
     return items;
   }
@@ -115,6 +155,7 @@ function initSearch(data, opts) {
   var SEARCH_ACTIVE = ['bg-accent-subtle', 'border-l-[3px]', 'border-l-accent', '!pl-[13px]'];
 
   function openSearch() {
+    lastFocused = document.activeElement;
     searchOverlay.classList.remove('hidden');
     searchInput.value = '';
     searchInput.focus();
@@ -126,6 +167,9 @@ function initSearch(data, opts) {
   function closeSearch() {
     searchOverlay.classList.add('hidden');
     document.body.style.overflow = '';
+    if (lastFocused && typeof lastFocused.focus === 'function') {
+      lastFocused.focus();
+    }
   }
 
   function renderSearchResults(query) {
@@ -148,14 +192,14 @@ function initSearch(data, opts) {
 
     var activeClasses = SEARCH_ACTIVE.join(' ');
     searchResults.innerHTML = matches.map(function(item, i) {
-      return '<a href="' + item.href + '" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle' + (i === activeIndex ? ' ' + activeClasses : '') + '" data-index="' + i + '">' +
+      return '<a href="' + escapeHtml(item.href) + '" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle' + (i === activeIndex ? ' ' + activeClasses : '') + '" data-index="' + i + '">' +
         '<div class="flex flex-col gap-0.5 min-w-0">' +
-          '<span class="font-semibold text-accent text-[0.95rem]">' + item.name + '</span>' +
-          '<span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">' + item.desc + '</span>' +
+          '<span class="font-semibold text-accent text-[0.95rem]">' + escapeHtml(item.name) + '</span>' +
+          '<span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">' + escapeHtml(item.desc) + '</span>' +
         '</div>' +
         '<div class="flex items-center gap-2 shrink-0 ml-4">' +
-          '<span class="text-[0.7rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-xl bg-accent-subtle text-accent">' + item.type + '</span>' +
-          '<span class="font-mono text-[0.75rem] text-[var(--text-muted)]">v' + item.version + '</span>' +
+          '<span class="text-[0.7rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-xl bg-accent-subtle text-accent">' + escapeHtml(item.type) + '</span>' +
+          '<span class="font-mono text-[0.75rem] text-[var(--text-muted)]">v' + escapeHtml(item.version) + '</span>' +
         '</div>' +
       '</a>';
     }).join('');
@@ -195,6 +239,14 @@ function initSearch(data, opts) {
     if (e.key === 'ArrowDown') { e.preventDefault(); navigateResults(1); }
     if (e.key === 'ArrowUp') { e.preventDefault(); navigateResults(-1); }
     if (e.key === 'Enter') { e.preventDefault(); selectResult(); }
+  });
+
+  // Trap Tab focus inside the modal while it is open.
+  searchOverlay.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      searchInput.focus();
+    }
   });
 
   searchOverlay.addEventListener('click', function(e) { if (e.target === searchOverlay) closeSearch(); });

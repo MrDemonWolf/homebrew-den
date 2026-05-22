@@ -11,10 +11,13 @@ The project includes an auto-generated documentation site deployed to GitHub Pag
 ```
 homebrew-den/
 ├── Formula/             # Formula Ruby files (CLI tools)
-├── Casks/               # Cask Ruby files (macOS apps, not yet created)
+├── Casks/               # Cask Ruby files (macOS apps)
 ├── site/
-│   ├── template.html    # Main page HTML template ({{PACKAGES_JSON}} placeholder)
+│   ├── template.html    # Homepage template (placeholders for partials, rows, JSON)
 │   ├── formula-template.html  # Per-formula detail page template
+│   ├── cask-template.html     # Per-cask detail page template
+│   ├── partials/        # Shared HTML fragments (nav, search-modal, footer)
+│   ├── shared.js        # Shared client JS (theme, search, copy, escaping)
 │   ├── input.css        # Tailwind CSS source (theme config + custom styles)
 │   └── favicon.svg      # SVG favicon (brew cup icon)
 ├── package.json         # Node.js deps (tailwindcss, vitest, cheerio)
@@ -46,15 +49,17 @@ homebrew-den/
 
 ## Documentation Site
 
-The site is a single-page static site with per-formula detail pages. Styled with Tailwind CSS v4 (utility classes in HTML/JS + minimal custom CSS in `site/input.css` for theme variables, base resets, and table styles). A shell script parses `.rb` files, builds Tailwind, and generates everything.
+The site is a static site with per-formula and per-cask detail pages. Styled with Tailwind CSS v4 (utility classes in HTML/JS + minimal custom CSS in `site/input.css` for theme variables, base resets, and table styles). Themed after the mrdemonwolf.com brand (Poppins/Mulish fonts, brand blue `#0e4d8d`, accent `#00aced`). A shell script parses `.rb` files, builds Tailwind, and generates everything.
 
 ### Key features
-- Dark/light theme toggle (respects system preference, saves to localStorage)
-- Cmd+K / Ctrl+K search palette with keyboard navigation
-- Per-formula pages at `/formulae/<name>/` with sticky sidebar navigation (desktop) and horizontal scrollable strip (mobile)
-- Active section tracking via IntersectionObserver on formula pages
+- Light-default theme with a dark toggle (respects system preference, saves to localStorage)
+- Package tables are server-rendered at build time (work without JavaScript)
+- Cmd+K / Ctrl+K search palette with keyboard navigation and focus trapping
+- Per-formula pages at `/formulae/<name>/` and per-cask pages at `/casks/<name>/`, with sticky sidebar navigation (desktop) and horizontal scrollable strip (mobile)
+- Active section tracking via IntersectionObserver on detail pages
 - Stability badges: detects alpha (0.x.x), beta, RC, pre-release (from GitHub Releases API and version suffixes)
-- Version history table on formula pages (pulled from GitHub Releases API)
+- Version history table on detail pages (pulled from GitHub Releases API)
+- Shared nav/search/footer markup lives in `site/partials/`; `build-site.sh`'s `render_template` splices partials and placeholders
 - Auto-deploys via GitHub Actions on push to main
 
 ### Build locally

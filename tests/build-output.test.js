@@ -60,6 +60,10 @@ describe("File structure", () => {
   it("generates iconwolf formula page", () => {
     expectFileExists("formulae", "iconwolf", "index.html");
   });
+
+  it("generates wolfwave cask page", () => {
+    expectFileExists("casks", "wolfwave", "index.html");
+  });
 });
 
 describe("Template substitution", () => {
@@ -146,6 +150,62 @@ describe("Iconwolf metadata", () => {
       expect(v).toHaveProperty("date");
       expect(v).toHaveProperty("url");
     }
+  });
+});
+
+describe("Wolfwave cask metadata", () => {
+  let cask;
+
+  beforeAll(() => {
+    cask = extractJSON(readSiteFile("casks/wolfwave/index.html"), "cask");
+  });
+
+  it("has correct name", () => {
+    expect(cask.name).toBe("wolfwave");
+  });
+
+  it("has correct version", () => {
+    expect(cask.version).toBe("1.2.0");
+  });
+
+  it("has an app name", () => {
+    expect(cask.appName).toBe("WolfWave");
+  });
+
+  it("has a versions array", () => {
+    expect(Array.isArray(cask.versions)).toBe(true);
+  });
+
+  it("no leftover {{CASK_JSON}} placeholder", () => {
+    expectNoPlaceholder(readSiteFile("casks/wolfwave/index.html"), "CASK_JSON");
+  });
+});
+
+describe("Server-rendered package tables", () => {
+  it("renders formula rows as static HTML (works without JS)", () => {
+    const html = readSiteFile("index.html");
+    expect(html).toContain('href="formulae/iconwolf/"');
+    expect(html).toContain("brew install iconwolf");
+  });
+
+  it("renders cask rows as static HTML (works without JS)", () => {
+    const html = readSiteFile("index.html");
+    expect(html).toContain('href="casks/wolfwave/"');
+    expect(html).toContain("brew install --cask wolfwave");
+  });
+
+  it("no leftover row placeholders in index.html", () => {
+    const html = readSiteFile("index.html");
+    expectNoPlaceholder(html, "FORMULAE_ROWS");
+    expectNoPlaceholder(html, "CASKS_ROWS");
+  });
+
+  it("splices shared partials (no leftover partial placeholders)", () => {
+    const html = readSiteFile("index.html");
+    expectNoPlaceholder(html, "NAV");
+    expectNoPlaceholder(html, "SEARCH_MODAL");
+    expectNoPlaceholder(html, "FOOTER");
+    expectNoPlaceholder(html, "ROOT");
   });
 });
 

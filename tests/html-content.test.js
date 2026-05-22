@@ -148,6 +148,49 @@ describe("Formula page (iconwolf)", () => {
   });
 });
 
+describe("Cask page (wolfwave)", () => {
+  let $;
+
+  beforeAll(() => {
+    $ = loadHTML("casks/wolfwave/index.html");
+  });
+
+  it("title contains 'wolfwave' and 'Homebrew Den'", () => {
+    const title = $("title").text();
+    expect(title).toContain("wolfwave");
+    expect(title).toContain("Homebrew Den");
+  });
+
+  it("references correct relative CSS path", () => {
+    const links = $('link[rel="stylesheet"]')
+      .map((_, el) => $(el).attr("href"))
+      .get();
+    expect(links).toContain("../../output.css");
+  });
+
+  it("has breadcrumb with cask name", () => {
+    expect($("#breadcrumb-name").text()).toBe("wolfwave");
+  });
+
+  it("breadcrumb links to casks section", () => {
+    expect($('a[href="../../#casks-section"]').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("has install and details sections", () => {
+    expect($("#install-section").length).toBe(1);
+    expect($("#details-section").length).toBe(1);
+  });
+
+  it("script has cask and data variables", () => {
+    const scripts = $("script")
+      .map((_, el) => $(el).html())
+      .get()
+      .join("");
+    expect(scripts).toContain("const cask =");
+    expect(scripts).toContain("const data =");
+  });
+});
+
 describe("Cross-page: static assets exist on disk", () => {
   it("output.css exists in _site/", () => {
     expectFileExists("output.css");
