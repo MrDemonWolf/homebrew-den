@@ -82,31 +82,16 @@ export function extractFormulaField(content, regex) {
 }
 
 /**
- * Pure JS implementation of the bash stability detection logic
- * from scripts/build-site.sh.
+ * Load a named function from site/shared.js by extracting its source.
+ * This lets tests exercise the *actual* shipped implementation rather than
+ * a separate copy that could silently drift.
  */
-export function detectStability(version, { isGitHubPrerelease = false } = {}) {
-  let stability = "stable";
-
-  if (isGitHubPrerelease) {
-    stability = "pre-release";
+export function loadSharedFunction(fnName) {
+  const src = readFileSync(path.join(ROOT, "site", "shared.js"), "utf-8");
+  const match = src.match(new RegExp(`function ${fnName}\\s*\\([\\s\\S]*?\\n\\}`));
+  if (!match) {
+    throw new Error(`function ${fnName} not found in site/shared.js`);
   }
-
-  if (/^0\./.test(version) && stability === "stable") {
-    stability = "alpha";
-  }
-
-  if (/-(alpha|beta|rc|dev|canary|nightly|preview)/i.test(version)) {
-    if (/alpha/i.test(version)) {
-      stability = "alpha";
-    } else if (/beta/i.test(version)) {
-      stability = "beta";
-    } else if (/rc/i.test(version)) {
-      stability = "rc";
-    } else {
-      stability = "pre-release";
-    }
-  }
-
-  return stability;
+  // eslint-disable-next-line no-new-func
+  return new Function(`${match[0]}\nreturn ${fnName};`)();
 }

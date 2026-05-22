@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { detectStability } from "./helpers.js";
+import { loadSharedFunction } from "./helpers.js";
+
+// Exercises the real detectStability() shipped in site/shared.js.
+const detectStability = loadSharedFunction("detectStability");
 
 describe("Stability detection", () => {
   it("detects 0.x.x as alpha", () => {
