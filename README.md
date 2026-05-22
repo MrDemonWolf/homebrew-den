@@ -14,7 +14,7 @@ brew install --cask <name>      # macOS apps
 
 | Formula | Version | Stability | Description |
 | ------- | ------- | --------- | ----------- |
-| `iconwolf` | 0.0.6 | Alpha | Cross-platform app icon generator for Expo/React Native projects |
+| `iconwolf` | 0.4.0 | Alpha | Cross-platform app icon generator for Expo/React Native projects |
 
 ## Available Casks
 
@@ -30,7 +30,7 @@ The site auto-rebuilds on every push to `main` and includes:
 
 - Dark/light theme with system preference detection
 - Cmd+K / Ctrl+K search palette for quick package lookup
-- Per-formula detail pages with install commands, metadata, caveats, and version history
+- Per-formula and per-cask detail pages with install commands, metadata, caveats, and version history
 - Stability badges (Alpha, Beta, RC, Pre-release) based on semver and GitHub Releases
 
 To build locally:
