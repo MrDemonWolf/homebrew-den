@@ -20,7 +20,7 @@ const BADGE_COLORS = {
   rc: 'bg-[rgba(59,130,246,0.15)] text-[#3b82f6]',
   'pre-release': 'bg-[rgba(249,115,22,0.15)] text-[#f97316]',
   stable: 'bg-[rgba(34,197,94,0.15)] text-[#22c55e]',
-  current: 'bg-accent-subtle text-accent'
+  current: 'bg-accent-subtle text-[var(--link)]'
 };
 const STABILITY_LABELS = { alpha: 'Alpha', beta: 'Beta', rc: 'RC', 'pre-release': 'Pre-release', stable: 'Stable' };
 
@@ -194,11 +194,11 @@ function initSearch(data, opts) {
     searchResults.innerHTML = matches.map(function(item, i) {
       return '<a href="' + escapeHtml(item.href) + '" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle' + (i === activeIndex ? ' ' + activeClasses : '') + '" data-index="' + i + '">' +
         '<div class="flex flex-col gap-0.5 min-w-0">' +
-          '<span class="font-semibold text-accent text-[0.95rem]">' + escapeHtml(item.name) + '</span>' +
+          '<span class="font-semibold text-[var(--link)] text-[0.95rem]">' + escapeHtml(item.name) + '</span>' +
           '<span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">' + escapeHtml(item.desc) + '</span>' +
         '</div>' +
         '<div class="flex items-center gap-2 shrink-0 ml-4">' +
-          '<span class="text-[0.7rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-xl bg-accent-subtle text-accent">' + escapeHtml(item.type) + '</span>' +
+          '<span class="text-[0.7rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-xl bg-accent-subtle text-[var(--link)]">' + escapeHtml(item.type) + '</span>' +
           '<span class="font-mono text-[0.75rem] text-[var(--text-muted)]">v' + escapeHtml(item.version) + '</span>' +
         '</div>' +
       '</a>';
@@ -251,4 +251,107 @@ function initSearch(data, opts) {
 
   searchOverlay.addEventListener('click', function(e) { if (e.target === searchOverlay) closeSearch(); });
   searchTrigger.addEventListener('click', openSearch);
+}
+
+// --- Detail page (shared by formula + cask pages) ---
+// Populates the common markup and wires the version history + sidebar tracking.
+// Page-type differences (License vs Application, install command) are passed in.
+function stabilityBadge(stability, label) {
+  return '<span class="' + BADGE + ' ' + (BADGE_COLORS[stability] || '') + '">' + escapeHtml(label) + '</span>';
+}
+
+function initDetailPage(item, installCommand) {
+  document.getElementById('detail-name').textContent = item.name;
+  document.getElementById('detail-version').textContent = 'v' + item.version;
+  document.getElementById('detail-desc').textContent = item.desc;
+  document.getElementById('install-command').textContent = installCommand;
+  document.getElementById('detail-homepage').textContent = item.homepage;
+  document.getElementById('detail-homepage').href = item.homepage;
+  document.getElementById('detail-version-detail').textContent = item.version;
+
+  // Stability badge + detail row
+  var stability = item.stability || 'stable';
+  var label = STABILITY_LABELS[stability] || stability;
+  if (stability !== 'stable') {
+    document.getElementById('detail-stability-badge').innerHTML = stabilityBadge(stability, label);
+    document.getElementById('detail-stability-detail').innerHTML = stabilityBadge(stability, label) +
+      '<span class="text-[0.8rem] text-[var(--text-muted)]"> &mdash; This version is not yet considered stable.</span>';
+  } else {
+    document.getElementById('detail-stability-detail').innerHTML = stabilityBadge('stable', 'Stable');
+  }
+
+  // Caveats (optional)
+  if (item.caveats) {
+    document.getElementById('caveats-section').classList.remove('hidden');
+    document.getElementById('detail-caveats').textContent = item.caveats;
+    document.getElementById('sidebar-caveats').classList.remove('hidden');
+    document.querySelectorAll('#sidebar-mobile .sidebar-link[data-section="caveats-section"]').forEach(function(el) { el.classList.remove('hidden'); });
+  }
+
+  // Version history (optional)
+  if (item.versions && item.versions.length > 0) {
+    document.getElementById('versions-section').classList.remove('hidden');
+    document.getElementById('sidebar-versions').classList.remove('hidden');
+    document.querySelectorAll('#sidebar-mobile .sidebar-link[data-section="versions-section"]').forEach(function(el) { el.classList.remove('hidden'); });
+
+    document.getElementById('versions-body').innerHTML = item.versions.map(function(v) {
+      var isCurrent = v.version === item.version;
+      var vStability = detectStability(v.version, { isGitHubPrerelease: v.prerelease });
+      var statusBadge = stabilityBadge(vStability, STABILITY_LABELS[vStability] || vStability);
+      var currentTag = isCurrent ? ' ' + stabilityBadge('current', 'Current') : '';
+      return '<tr' + (isCurrent ? ' class="bg-accent-subtle"' : '') + '>' +
+        '<td data-label="Version"><span class="font-mono text-[0.8rem] bg-accent-subtle text-[var(--link)] px-2 py-0.5 rounded-xl whitespace-nowrap">v' + escapeHtml(v.version) + '</span>' + currentTag + '</td>' +
+        '<td data-label="Date">' + escapeHtml(v.date) + '</td>' +
+        '<td data-label="Status">' + statusBadge + '</td>' +
+        '<td data-label=""><a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener noreferrer" class="text-[var(--link)] no-underline text-[0.85rem] hover:underline">Release notes</a></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  initSectionTracking();
+}
+
+// --- Detail page sidebar: active-section tracking via IntersectionObserver ---
+function initSectionTracking() {
+  var DESKTOP_ACTIVE = ['!text-[var(--link)]', '!border-l-accent', 'bg-accent-subtle'];
+  var DESKTOP_INACTIVE = ['text-[var(--text-muted)]', 'border-transparent'];
+  var MOBILE_ACTIVE = ['!text-[var(--link)]', 'bg-accent-subtle'];
+  var MOBILE_INACTIVE = ['text-[var(--text-muted)]'];
+
+  function setActiveSection(sectionId) {
+    document.querySelectorAll('aside .sidebar-link').forEach(function(link) {
+      var on = link.dataset.section === sectionId;
+      link.classList[on ? 'add' : 'remove'].apply(link.classList, DESKTOP_ACTIVE);
+      link.classList[on ? 'remove' : 'add'].apply(link.classList, DESKTOP_INACTIVE);
+    });
+    var mobileNav = document.getElementById('sidebar-mobile');
+    mobileNav.querySelectorAll('.sidebar-link').forEach(function(link) {
+      var on = link.dataset.section === sectionId;
+      link.classList[on ? 'add' : 'remove'].apply(link.classList, MOBILE_ACTIVE);
+      link.classList[on ? 'remove' : 'add'].apply(link.classList, MOBILE_INACTIVE);
+      if (on) link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    });
+  }
+
+  function setupObserver() {
+    var sections = document.querySelectorAll('[id$="-section"]:not(.hidden)');
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) setActiveSection(entry.target.id);
+      });
+    }, { rootMargin: '-80px 0px -35% 0px', threshold: 0 });
+    sections.forEach(function(section) { observer.observe(section); });
+    return observer;
+  }
+
+  var sectionObserver = setupObserver();
+
+  // Re-observe when caveats/versions sections un-hide.
+  var mutationObserver = new MutationObserver(function() {
+    sectionObserver.disconnect();
+    sectionObserver = setupObserver();
+  });
+  document.querySelectorAll('[id$="-section"]').forEach(function(el) {
+    mutationObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+  });
 }

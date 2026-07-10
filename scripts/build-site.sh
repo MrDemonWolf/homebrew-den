@@ -6,8 +6,7 @@ SITE_DIR="$REPO_ROOT/_site"
 SITE_SRC="$REPO_ROOT/site"
 PARTIALS="$SITE_SRC/partials"
 TEMPLATE="$SITE_SRC/template.html"
-FORMULA_TEMPLATE="$SITE_SRC/formula-template.html"
-CASK_TEMPLATE="$SITE_SRC/cask-template.html"
+DETAIL_TEMPLATE="$SITE_SRC/detail-template.html"
 CSS_INPUT="$SITE_SRC/input.css"
 CSS_OUTPUT="$SITE_SRC/output.css"
 
@@ -20,6 +19,17 @@ SEARCH_MODAL_HTML="$(cat "$PARTIALS/search-modal.html")"
 FOOTER_HTML="$(cat "$PARTIALS/footer.html")"
 
 COPY_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
+
+# --- The one Details row that differs between formula (License) and cask (Application) pages ---
+detail_row() {
+  local dt="$1" id="$2"
+  cat <<ROW
+            <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
+              <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">$dt</dt>
+              <dd class="text-[0.9rem]" id="$id"></dd>
+            </div>
+ROW
+}
 
 # --- Helper: extract the first quoted value of a field from a .rb file ---
 extract_field() {
@@ -168,10 +178,10 @@ package_row() {
   badge=$(badge_html "$stability")
   cat <<ROW
         <tr>
-          <td data-label="Name"><a href="$href" class="font-semibold text-accent">$name_e</a></td>
-          <td data-label="Version"><span class="font-mono text-[0.8rem] bg-accent-subtle text-accent px-2 py-0.5 rounded-xl whitespace-nowrap">v$version_e</span>$badge</td>
+          <td data-label="Name"><a href="$href" class="font-semibold text-[var(--link)]">$name_e</a></td>
+          <td data-label="Version"><span class="font-mono text-[0.8rem] bg-accent-subtle text-[var(--link)] px-2 py-0.5 rounded-xl whitespace-nowrap">v$version_e</span>$badge</td>
           <td data-label="Description">$desc_e</td>
-          <td data-label="Install"><span class="font-mono text-[0.85rem] text-[var(--text-muted)] inline-flex items-center gap-2"><code>$install_e</code><button type="button" class="copy-sm inline-flex items-center justify-center w-6 h-6 border-none rounded-sm bg-transparent text-[var(--text-muted)] cursor-pointer transition-all duration-200 ease-in-out hover:text-accent hover:bg-accent-subtle" data-copy="$install_e" aria-label="Copy install command">$COPY_ICON</button></span></td>
+          <td data-label="Install"><span class="font-mono text-[0.85rem] text-[var(--text-muted)] inline-flex items-center gap-2"><code>$install_e</code><button type="button" class="copy-sm inline-flex items-center justify-center w-6 h-6 border-none rounded-sm bg-transparent text-[var(--text-muted)] cursor-pointer transition-all duration-200 ease-in-out hover:text-[var(--link)] hover:bg-accent-subtle" data-copy="$install_e" aria-label="Copy install command">$COPY_ICON</button></span></td>
         </tr>
 ROW
 }
@@ -354,14 +364,21 @@ for i in "${!formula_names[@]}"; do
     "$(json_escape "${formula_licenses[$i]}")" "$(json_escape "${formula_caveats[$i]}")" \
     "$(json_escape "${formula_stabilities[$i]}")" "${formula_releases_json[$i]:-[]}")
 
-  render_template "$FORMULA_TEMPLATE" \
+  detail_script="    const formula = $formula_json;
+    const data = $packages_json;
+    document.getElementById('detail-license').textContent = formula.license || 'N/A';
+    initDetailPage(formula, 'brew install ' + formula.name);"
+
+  render_template "$DETAIL_TEMPLATE" \
     ROOT "../../" \
     NAV "$NAV_HTML" \
     SEARCH_MODAL "$SEARCH_MODAL_HTML" \
     FOOTER "$FOOTER_HTML" \
-    PACKAGES_JSON "$packages_json" \
-    FORMULA_NAME "$fname" \
-    FORMULA_JSON "$formula_json" \
+    ITEM_NAME "$fname" \
+    PARENT "Formulae" \
+    PARENT_ANCHOR "formulae" \
+    EXTRA_DETAIL_ROW "$(detail_row License detail-license)" \
+    DETAIL_SCRIPT "$detail_script" \
     > "$SITE_DIR/formulae/$fname/index.html"
 done
 
@@ -378,14 +395,21 @@ for i in "${!cask_names[@]}"; do
     "$(json_escape "${cask_appnames[$i]}")" "$(json_escape "${cask_caveats_arr[$i]:-}")" \
     "$(json_escape "${cask_stabilities[$i]}")" "${cask_releases_json[$i]:-[]}")
 
-  render_template "$CASK_TEMPLATE" \
+  detail_script="    const cask = $cask_json;
+    const data = $packages_json;
+    document.getElementById('detail-appname').textContent = cask.appName || cask.name;
+    initDetailPage(cask, 'brew install --cask ' + cask.name);"
+
+  render_template "$DETAIL_TEMPLATE" \
     ROOT "../../" \
     NAV "$NAV_HTML" \
     SEARCH_MODAL "$SEARCH_MODAL_HTML" \
     FOOTER "$FOOTER_HTML" \
-    PACKAGES_JSON "$packages_json" \
-    CASK_NAME "$cname" \
-    CASK_JSON "$cask_json" \
+    ITEM_NAME "$cname" \
+    PARENT "Casks" \
+    PARENT_ANCHOR "casks" \
+    EXTRA_DETAIL_ROW "$(detail_row Application detail-appname)" \
+    DETAIL_SCRIPT "$detail_script" \
     > "$SITE_DIR/casks/$cname/index.html"
 done
 

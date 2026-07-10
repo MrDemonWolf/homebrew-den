@@ -46,6 +46,8 @@
   --shadow: 0 2px 14px rgba(14, 77, 141, 0.08);
   --hero-gradient: linear-gradient(135deg, #e8f1fb 0%, #f4f7fb 55%, #ffffff 100%);
   --overlay-bg: rgba(14, 30, 55, 0.4);
+  /* Accent-as-text: darker brand blue on light (8.5:1 on white) for AA contrast; cyan stays for fills/icons. */
+  --link: #0e4d8d;
 }
 
 /* --- Dark theme --- */
@@ -64,11 +66,28 @@
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   --hero-gradient: linear-gradient(135deg, #091533 0%, #0f2150 50%, #132a5e 100%);
   --overlay-bg: rgba(5, 10, 30, 0.75);
+  /* On the dark theme cyan already has high contrast, so links keep the brand accent. */
+  --link: #00aced;
 }
 
 /* --- Base resets --- */
 html {
   scroll-behavior: smooth;
+}
+
+/* --- Respect reduced-motion preferences --- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 body {
@@ -82,7 +101,7 @@ h1, h2, h3 {
 }
 
 a {
-  color: var(--color-accent);
+  color: var(--link);
   text-decoration: none;
   transition: color 0.2s ease;
 }
