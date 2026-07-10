@@ -41,6 +41,40 @@ bash scripts/build-site.sh
 open _site/index.html
 ```
 
+## Adding a New Formula
+
+Create a file at `Formula/<name>.rb` pointing at a pre-built release binary:
+
+```ruby
+class <Name> < Formula
+  desc "<Short description>"
+  homepage "https://github.com/<owner>/<repo>"
+  version "<version>"
+  license "MIT"
+
+  on_macos do
+    if Hardware::CPU.arm?
+      url "https://github.com/<owner>/<repo>/releases/download/v#{version}/<name>-macos-arm64.tar.gz"
+      sha256 "<sha256>"
+    end
+  end
+
+  def install
+    bin.install "<name>"
+  end
+
+  test do
+    assert_match version.to_s, shell_output("#{bin}/<name> --version")
+  end
+end
+```
+
+Test the formula locally before pushing:
+
+```sh
+brew install --build-from-source Formula/<name>.rb
+```
+
 ## Adding a New Cask
 
 Create a file at `Casks/<name>.rb` using this template:

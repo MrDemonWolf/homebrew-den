@@ -17,12 +17,12 @@
   {{SEARCH_MODAL}}
 
   <!-- Hero -->
-  <section class="bg-[var(--hero-gradient)] border-b border-[var(--card-border)] py-20 px-6 text-center transition-[background,border-color] duration-200 ease-in-out max-sm:py-12 max-sm:px-4">
-    <h1 class="text-[2.75rem] font-extrabold mb-3 tracking-tight max-sm:text-[1.875rem]">Homebrew <span class="text-accent">Den</span></h1>
+  <section id="main" class="bg-[var(--hero-gradient)] border-b border-[var(--card-border)] py-20 px-6 text-center transition-[background,border-color] duration-200 ease-in-out max-sm:py-12 max-sm:px-4">
+    <h1 class="text-[2.75rem] font-extrabold mb-3 tracking-tight max-sm:text-[1.875rem]">Homebrew <span class="text-[var(--link)]">Den</span></h1>
     <p class="text-lg text-[var(--text-muted)] mb-8 max-w-[480px] mx-auto max-sm:text-base">A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc.</p>
     <div class="inline-flex items-center gap-3 bg-[var(--code-bg)] border border-[var(--code-border)] rounded-md px-5 py-3.5 font-mono text-[0.95rem] text-[var(--text)] shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:text-[0.85rem] max-sm:px-4 max-sm:py-3">
       <code class="select-all" id="tap-command">brew tap mrdemonwolf/den</code>
-      <button type="button" class="copy-btn flex items-center justify-center w-8 h-8 border-none rounded-sm bg-accent text-white cursor-pointer transition-all duration-200 ease-in-out hover:bg-accent-hover hover:scale-105 shrink-0" onclick="copyText('tap-command', this)" aria-label="Copy install command">
+      <button type="button" class="copy-btn flex items-center justify-center w-8 h-8 border-none rounded-sm bg-accent text-white cursor-pointer transition-all duration-200 ease-in-out hover:bg-accent-hover hover:scale-105 shrink-0" onclick="copyText('tap-command', this)" aria-label="Copy tap command">
         <svg class="icon-copy w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -33,9 +33,9 @@
       </button>
     </div>
     <div class="mt-7 flex items-center justify-center gap-3 text-[0.9rem] text-[var(--text-muted)]">
-      <a href="#formulae-section" class="font-semibold text-accent">{{FORMULA_COUNT}} formulae</a>
+      <a href="#formulae-section" class="font-semibold text-[var(--link)]">{{FORMULA_COUNT}} formulae</a>
       <span class="text-[var(--card-border)]">&middot;</span>
-      <a href="#casks-section" class="font-semibold text-accent">{{CASK_COUNT}} casks</a>
+      <a href="#casks-section" class="font-semibold text-[var(--link)]">{{CASK_COUNT}} casks</a>
     </div>
   </section>
 
@@ -48,19 +48,19 @@
         <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand text-white text-[0.8rem] font-bold mb-3">1</div>
         <h3 class="text-base font-semibold mb-2">Add the Tap</h3>
         <p class="text-[var(--text-muted)] text-[0.9rem] mb-3">Register the Homebrew Den tap on your machine.</p>
-        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-accent overflow-x-auto">brew tap mrdemonwolf/den</code>
+        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-[var(--link)] overflow-x-auto">brew tap mrdemonwolf/den</code>
       </div>
       <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 transition-all duration-200 ease-in-out hover:border-accent hover:shadow-[var(--shadow)]">
         <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand text-white text-[0.8rem] font-bold mb-3">2</div>
         <h3 class="text-base font-semibold mb-2">Install a Package</h3>
         <p class="text-[var(--text-muted)] text-[0.9rem] mb-3">Install any formula or cask from the tap.</p>
-        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-accent overflow-x-auto">brew install &lt;formula&gt;</code>
+        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-[var(--link)] overflow-x-auto">brew install &lt;formula&gt;</code>
       </div>
       <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 transition-all duration-200 ease-in-out hover:border-accent hover:shadow-[var(--shadow)]">
         <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand text-white text-[0.8rem] font-bold mb-3">3</div>
         <h3 class="text-base font-semibold mb-2">Stay Updated</h3>
         <p class="text-[var(--text-muted)] text-[0.9rem] mb-3">Keep your packages up to date with Homebrew.</p>
-        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-accent overflow-x-auto">brew update &amp;&amp; brew upgrade</code>
+        <code class="block bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm px-3 py-2 font-mono text-[0.85rem] text-[var(--link)] overflow-x-auto">brew update &amp;&amp; brew upgrade</code>
       </div>
     </div>
   </section>
