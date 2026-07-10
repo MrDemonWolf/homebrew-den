@@ -14,10 +14,9 @@ homebrew-den/
 ├── Casks/               # Cask Ruby files (macOS apps)
 ├── site/
 │   ├── template.html    # Homepage template (placeholders for partials, rows, JSON)
-│   ├── formula-template.html  # Per-formula detail page template
-│   ├── cask-template.html     # Per-cask detail page template
+│   ├── detail-template.html   # Single detail-page template (shared by formulae + casks)
 │   ├── partials/        # Shared HTML fragments (nav, search-modal, footer)
-│   ├── shared.js        # Shared client JS (theme, search, copy, escaping)
+│   ├── shared.js        # Shared client JS (theme, search, copy, escaping, detail-page rendering)
 │   ├── input.css        # Tailwind CSS source (theme config + custom styles)
 │   └── favicon.svg      # SVG favicon (brew cup icon)
 ├── package.json         # Node.js deps (tailwindcss, vitest, cheerio)
@@ -49,7 +48,7 @@ homebrew-den/
 
 ## Documentation Site
 
-The site is a static site with per-formula and per-cask detail pages. Styled with Tailwind CSS v4 (utility classes in HTML/JS + minimal custom CSS in `site/input.css` for theme variables, base resets, and table styles). Themed after the mrdemonwolf.com brand (Poppins/Mulish fonts, brand blue `#0e4d8d`, accent `#00aced`). A shell script parses `.rb` files, builds Tailwind, and generates everything.
+The site is a static site with per-formula and per-cask detail pages. Formula and cask detail pages share **one** `site/detail-template.html`; `build-site.sh` fills in the few per-type differences (breadcrumb label, the License-vs-Application row, and the install command), and `initDetailPage()` in `site/shared.js` renders the common markup (stability badge, caveats, version history, sidebar tracking) for both. Styled with Tailwind CSS v4 (utility classes in HTML/JS + minimal custom CSS in `site/input.css` for theme variables, base resets, and table styles). Themed after the mrdemonwolf.com brand (Poppins/Mulish fonts, brand blue `#0e4d8d`, accent `#00aced`). A shell script parses `.rb` files, builds Tailwind, and generates everything.
 
 ### Key features
 - Light-default theme with a dark toggle (respects system preference, saves to localStorage)
@@ -60,6 +59,7 @@ The site is a static site with per-formula and per-cask detail pages. Styled wit
 - Stability badges: detects alpha (0.x.x), beta, RC, pre-release (from GitHub Releases API and version suffixes)
 - Version history table on detail pages (pulled from GitHub Releases API)
 - Shared nav/search/footer markup lives in `site/partials/`; `build-site.sh`'s `render_template` splices partials and placeholders
+- Both detail-page types render from a single `site/detail-template.html`; shared client logic (theme, search, copy, stability badges, `initDetailPage`) lives once in `site/shared.js`
 - Auto-deploys via GitHub Actions on push to main
 
 ### Build locally
@@ -75,9 +75,9 @@ open _site/index.html
 The build script:
 1. Parses `Formula/*.rb` and `Casks/*.rb` for metadata (name, version, desc, homepage, license, caveats)
 2. Checks GitHub Releases API for pre-release flags, detects semver stability, and fetches version history
-3. Generates `_site/index.html` and `_site/formulae/<name>/index.html`
+3. Generates `_site/index.html`, `_site/formulae/<name>/index.html`, and `_site/casks/<name>/index.html`
 4. Builds Tailwind CSS (`site/input.css` → `site/output.css`)
-5. Copies CSS and favicon to `_site/`
+5. Copies CSS, favicon, and `shared.js` to `_site/`
 
 Supports `GITHUB_TOKEN` env var for authenticated API requests in CI.
 
