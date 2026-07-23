@@ -3,28 +3,33 @@ const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
 // --- HTML escaping (defense-in-depth for any interpolated value) ---
+// Also neutralizes the U+2028/U+2029 line separators that can terminate a JS
+// string literal when interpolated content is later re-embedded in a script.
 function escapeHtml(value) {
   return String(value == null ? '' : value)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/'/g, '&#39;')
+    .replace(/\u2028/g, "&#8232;")
+    .replace(/\u2029/g, "&#8233;");
 }
 
-// --- Stability badge helper ---
-const BADGE = 'inline-block font-sans text-[0.7rem] font-bold uppercase tracking-[0.04em] px-2 py-0.5 rounded-xl whitespace-nowrap align-middle';
-const BADGE_COLORS = {
-  alpha: 'bg-[rgba(245,158,11,0.15)] text-[#f59e0b]',
-  beta: 'bg-[rgba(168,85,247,0.15)] text-[#a855f7]',
-  rc: 'bg-[rgba(59,130,246,0.15)] text-[#3b82f6]',
-  'pre-release': 'bg-[rgba(249,115,22,0.15)] text-[#f97316]',
-  stable: 'bg-[rgba(34,197,94,0.15)] text-[#22c55e]',
-  current: 'bg-accent-subtle text-[var(--link)]'
-};
-const STABILITY_LABELS = { alpha: 'Alpha', beta: 'Beta', rc: 'RC', 'pre-release': 'Pre-release', stable: 'Stable' };
+// --- URL scheme allowlist (blocks javascript:/data: and other schemes) ---
+// Relative/anchor URLs (no scheme) are allowed; protocol-relative and any
+// scheme other than http(s)/mailto collapse to "#".
+function safeUrl(value) {
+  var url = String(value == null ? '' : value).trim();
+  if (/^\/\//.test(url)) return '#';
+  if (/^[a-z][a-z0-9+.\-]*:/i.test(url)) {
+    return /^(https?:|mailto:)/i.test(url) ? url : '#';
+  }
+  return url;
+}
 
-// --- Stability detection (single source of truth, mirrors build-site.sh) ---
+// --- Stability detection (mirrors build-site.sh detect_stability; parity is
+//     guarded by tests/stability-parity.test.js). Used for search + tests. ---
 function detectStability(version, options) {
   const opts = options || {};
   let stability = 'stable';
@@ -53,9 +58,36 @@ function detectStability(version, options) {
 }
 
 // --- Copy buttons ---
+// Clipboard access can be undefined (insecure context) or reject (denied
+// permission); fall back to a legacy execCommand copy and never throw.
+function writeClipboard(text, onOk) {
+  function legacyCopy() {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (ok && onOk) onOk();
+    } catch (err) {
+      /* clipboard unavailable — nothing more we can do */
+    }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() { if (onOk) onOk(); }, legacyCopy);
+  } else {
+    legacyCopy();
+  }
+}
+
 function copyText(elementId, btn) {
-  var text = document.getElementById(elementId).textContent;
-  navigator.clipboard.writeText(text).then(function() { showCopied(btn); });
+  var el = document.getElementById(elementId);
+  if (!el) return;
+  writeClipboard(el.textContent, function() { showCopied(btn); });
 }
 
 function showCopied(btn) {
@@ -84,11 +116,20 @@ function initCopyButtons() {
     var btn = e.target.closest && e.target.closest('.copy-sm');
     if (!btn) return;
     var text = btn.getAttribute('data-copy') || '';
-    navigator.clipboard.writeText(text).then(function() { showCopiedSmall(btn); });
+    writeClipboard(text, function() { showCopiedSmall(btn); });
   });
 }
 
 // --- Theme toggle ---
+// localStorage throws in private-mode / disabled-storage contexts; degrade to
+// an in-memory preference instead of breaking theme init.
+function storageGet(key) {
+  try { return window.localStorage.getItem(key); } catch (e) { return null; }
+}
+function storageSet(key, value) {
+  try { window.localStorage.setItem(key, value); } catch (e) { /* storage unavailable */ }
+}
+
 function initTheme() {
   var themeToggle = document.getElementById('theme-toggle');
   var html = document.documentElement;
@@ -99,7 +140,7 @@ function initTheme() {
     } else {
       html.classList.remove('dark');
     }
-    localStorage.setItem('theme', theme);
+    storageSet('theme', theme);
     var sun = themeToggle.querySelector('.icon-sun');
     var moon = themeToggle.querySelector('.icon-moon');
     if (theme === 'dark') {
@@ -111,7 +152,7 @@ function initTheme() {
     }
   }
 
-  var savedTheme = localStorage.getItem('theme');
+  var savedTheme = storageGet('theme');
   if (savedTheme) {
     setTheme(savedTheme);
   } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -153,19 +194,38 @@ function initSearch(data, opts) {
 
   var searchIndex = buildSearchIndex();
   var SEARCH_ACTIVE = ['bg-accent-subtle', 'border-l-[3px]', 'border-l-accent', '!pl-[13px]'];
+  var searchPanel = document.getElementById('search-panel');
+  var searchClose = document.getElementById('search-close');
+  var searchStatus = document.getElementById('search-status');
+
+  function announce(msg) { if (searchStatus) searchStatus.textContent = msg; }
+
+  function syncActive() {
+    var items = searchResults.querySelectorAll('.search-result');
+    items.forEach(function(el, i) {
+      var on = i === activeIndex;
+      el.setAttribute('aria-selected', on ? 'true' : 'false');
+      el.classList[on ? 'add' : 'remove'].apply(el.classList, SEARCH_ACTIVE);
+    });
+    var current = activeIndex >= 0 && items[activeIndex] ? items[activeIndex].id : '';
+    searchInput.setAttribute('aria-activedescendant', current);
+  }
 
   function openSearch() {
     lastFocused = document.activeElement;
     searchOverlay.classList.remove('hidden');
+    searchInput.setAttribute('aria-expanded', 'true');
     searchInput.value = '';
-    searchInput.focus();
     activeIndex = -1;
     renderSearchResults('');
     document.body.style.overflow = 'hidden';
+    searchInput.focus();
   }
 
   function closeSearch() {
     searchOverlay.classList.add('hidden');
+    searchInput.setAttribute('aria-expanded', 'false');
+    searchInput.setAttribute('aria-activedescendant', '');
     document.body.style.overflow = '';
     if (lastFocused && typeof lastFocused.focus === 'function') {
       lastFocused.focus();
@@ -174,8 +234,10 @@ function initSearch(data, opts) {
 
   function renderSearchResults(query) {
     if (!query.trim()) {
-      searchResults.innerHTML = '<div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]">Type to search packages...</div>';
+      searchResults.innerHTML = '<div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]" role="presentation">Type to search packages...</div>';
       activeIndex = -1;
+      searchInput.setAttribute('aria-activedescendant', '');
+      announce('');
       return;
     }
 
@@ -185,14 +247,16 @@ function initSearch(data, opts) {
     });
 
     if (matches.length === 0) {
-      searchResults.innerHTML = '<div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]">No packages found.</div>';
+      searchResults.innerHTML = '<div class="py-8 px-4 text-center text-[var(--text-muted)] text-[0.9rem]" role="presentation">No packages found.</div>';
       activeIndex = -1;
+      searchInput.setAttribute('aria-activedescendant', '');
+      announce('No packages found.');
       return;
     }
 
     var activeClasses = SEARCH_ACTIVE.join(' ');
     searchResults.innerHTML = matches.map(function(item, i) {
-      return '<a href="' + escapeHtml(item.href) + '" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle' + (i === activeIndex ? ' ' + activeClasses : '') + '" data-index="' + i + '">' +
+      return '<a id="search-option-' + i + '" role="option" aria-selected="false" href="' + escapeHtml(safeUrl(item.href)) + '" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle' + (i === activeIndex ? ' ' + activeClasses : '') + '" data-index="' + i + '">' +
         '<div class="flex flex-col gap-0.5 min-w-0">' +
           '<span class="font-semibold text-[var(--link)] text-[0.95rem]">' + escapeHtml(item.name) + '</span>' +
           '<span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">' + escapeHtml(item.desc) + '</span>' +
@@ -203,6 +267,7 @@ function initSearch(data, opts) {
         '</div>' +
       '</a>';
     }).join('');
+    announce(matches.length + (matches.length === 1 ? ' result' : ' results') + ' available.');
   }
 
   function navigateResults(direction) {
@@ -211,19 +276,20 @@ function initSearch(data, opts) {
     activeIndex += direction;
     if (activeIndex < 0) activeIndex = items.length - 1;
     if (activeIndex >= items.length) activeIndex = 0;
-    items.forEach(function(el, i) {
-      if (i === activeIndex) {
-        el.classList.add.apply(el.classList, SEARCH_ACTIVE);
-      } else {
-        el.classList.remove.apply(el.classList, SEARCH_ACTIVE);
-      }
-    });
+    syncActive();
     items[activeIndex].scrollIntoView({ block: 'nearest' });
   }
 
   function selectResult() {
     var items = searchResults.querySelectorAll('.search-result');
     if (activeIndex >= 0 && activeIndex < items.length) items[activeIndex].click();
+  }
+
+  // Focusable controls inside the panel, in DOM order (input, close, results).
+  function focusables() {
+    return Array.prototype.slice.call(
+      searchPanel.querySelectorAll('input, button, a[href]')
+    ).filter(function(el) { return !el.disabled && el.offsetParent !== null; });
   }
 
   document.addEventListener('keydown', function(e) {
@@ -241,74 +307,25 @@ function initSearch(data, opts) {
     if (e.key === 'Enter') { e.preventDefault(); selectResult(); }
   });
 
-  // Trap Tab focus inside the modal while it is open.
+  // Real focus trap: cycle through every control instead of forcing the input.
   searchOverlay.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
+    if (e.key !== 'Tab') return;
+    var f = focusables();
+    if (f.length === 0) return;
+    var first = f[0];
+    var last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
       e.preventDefault();
-      searchInput.focus();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
     }
   });
 
   searchOverlay.addEventListener('click', function(e) { if (e.target === searchOverlay) closeSearch(); });
+  searchClose.addEventListener('click', closeSearch);
   searchTrigger.addEventListener('click', openSearch);
-}
-
-// --- Detail page (shared by formula + cask pages) ---
-// Populates the common markup and wires the version history + sidebar tracking.
-// Page-type differences (License vs Application, install command) are passed in.
-function stabilityBadge(stability, label) {
-  return '<span class="' + BADGE + ' ' + (BADGE_COLORS[stability] || '') + '">' + escapeHtml(label) + '</span>';
-}
-
-function initDetailPage(item, installCommand) {
-  document.getElementById('detail-name').textContent = item.name;
-  document.getElementById('detail-version').textContent = 'v' + item.version;
-  document.getElementById('detail-desc').textContent = item.desc;
-  document.getElementById('install-command').textContent = installCommand;
-  document.getElementById('detail-homepage').textContent = item.homepage;
-  document.getElementById('detail-homepage').href = item.homepage;
-  document.getElementById('detail-version-detail').textContent = item.version;
-
-  // Stability badge + detail row
-  var stability = item.stability || 'stable';
-  var label = STABILITY_LABELS[stability] || stability;
-  if (stability !== 'stable') {
-    document.getElementById('detail-stability-badge').innerHTML = stabilityBadge(stability, label);
-    document.getElementById('detail-stability-detail').innerHTML = stabilityBadge(stability, label) +
-      '<span class="text-[0.8rem] text-[var(--text-muted)]"> &mdash; This version is not yet considered stable.</span>';
-  } else {
-    document.getElementById('detail-stability-detail').innerHTML = stabilityBadge('stable', 'Stable');
-  }
-
-  // Caveats (optional)
-  if (item.caveats) {
-    document.getElementById('caveats-section').classList.remove('hidden');
-    document.getElementById('detail-caveats').textContent = item.caveats;
-    document.getElementById('sidebar-caveats').classList.remove('hidden');
-    document.querySelectorAll('#sidebar-mobile .sidebar-link[data-section="caveats-section"]').forEach(function(el) { el.classList.remove('hidden'); });
-  }
-
-  // Version history (optional)
-  if (item.versions && item.versions.length > 0) {
-    document.getElementById('versions-section').classList.remove('hidden');
-    document.getElementById('sidebar-versions').classList.remove('hidden');
-    document.querySelectorAll('#sidebar-mobile .sidebar-link[data-section="versions-section"]').forEach(function(el) { el.classList.remove('hidden'); });
-
-    document.getElementById('versions-body').innerHTML = item.versions.map(function(v) {
-      var isCurrent = v.version === item.version;
-      var vStability = detectStability(v.version, { isGitHubPrerelease: v.prerelease });
-      var statusBadge = stabilityBadge(vStability, STABILITY_LABELS[vStability] || vStability);
-      var currentTag = isCurrent ? ' ' + stabilityBadge('current', 'Current') : '';
-      return '<tr' + (isCurrent ? ' class="bg-accent-subtle"' : '') + '>' +
-        '<td data-label="Version"><span class="font-mono text-[0.8rem] bg-accent-subtle text-[var(--link)] px-2 py-0.5 rounded-xl whitespace-nowrap">v' + escapeHtml(v.version) + '</span>' + currentTag + '</td>' +
-        '<td data-label="Date">' + escapeHtml(v.date) + '</td>' +
-        '<td data-label="Status">' + statusBadge + '</td>' +
-        '<td data-label=""><a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener noreferrer" class="text-[var(--link)] no-underline text-[0.85rem] hover:underline">Release notes</a></td>' +
-        '</tr>';
-    }).join('');
-  }
-
-  initSectionTracking();
 }
 
 // --- Detail page sidebar: active-section tracking via IntersectionObserver ---
