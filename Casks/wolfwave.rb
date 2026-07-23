@@ -5,7 +5,7 @@ cask "wolfwave" do
   url "https://github.com/MrDemonWolf/wolfwave/releases/download/v#{version}/WolfWave-#{version}.dmg",
       verified: "github.com/MrDemonWolf/wolfwave/"
   name "WolfWave"
-  desc "macOS menu bar app that bridges Apple Music with Twitch, Discord, and stream overlays"
+  desc "Menu bar app bridging Apple Music with Twitch, Discord, and stream overlays"
   homepage "https://mrdemonwolf.github.io/wolfwave"
 
   livecheck do
