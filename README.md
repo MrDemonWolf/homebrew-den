@@ -52,8 +52,11 @@ class <Name> < Formula
   version "<version>"
   license "MIT"
 
+  depends_on :macos
+  depends_on arch: :arm64
+
   on_macos do
-    if Hardware::CPU.arm?
+    on_arm do
       url "https://github.com/<owner>/<repo>/releases/download/v#{version}/<name>-macos-arm64.tar.gz"
       sha256 "<sha256>"
     end
