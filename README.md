@@ -41,6 +41,17 @@ bash scripts/build-site.sh
 open _site/index.html
 ```
 
+The build needs **Node.js** (Tailwind CSS) and **Python 3** (parsing the GitHub
+Releases API for version history). Useful environment knobs:
+
+- `OFFLINE=1` — skip all network calls and build with empty version history
+  (explicit local offline mode).
+- `STRICT_RELEASES=1` — fail the build if the GitHub API is unreachable (set
+  automatically when `CI=true`) so production never ships pages with version
+  history silently dropped.
+- `OUT_DIR=<dir>` — write the site somewhere other than `_site` (the test suite
+  uses this to build into an isolated temp directory).
+
 ## Adding a New Formula
 
 Create a file at `Formula/<name>.rb` pointing at a pre-built release binary:
