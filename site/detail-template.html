@@ -38,9 +38,9 @@
       <a href="#details-section" class="sidebar-link text-[0.8rem] font-semibold px-3 py-1.5 rounded-md
          text-[var(--text-muted)] hover:text-[var(--link)] transition-colors shrink-0" data-section="details-section">Details</a>
       <a href="#caveats-section" class="sidebar-link text-[0.8rem] font-semibold px-3 py-1.5 rounded-md
-         text-[var(--text-muted)] hover:text-[var(--link)] transition-colors shrink-0 hidden" data-section="caveats-section">Caveats</a>
+         text-[var(--text-muted)] hover:text-[var(--link)] transition-colors shrink-0 {{CAVEATS_HIDDEN}}" data-section="caveats-section">Caveats</a>
       <a href="#versions-section" class="sidebar-link text-[0.8rem] font-semibold px-3 py-1.5 rounded-md
-         text-[var(--text-muted)] hover:text-[var(--link)] transition-colors shrink-0 hidden" data-section="versions-section">Versions</a>
+         text-[var(--text-muted)] hover:text-[var(--link)] transition-colors shrink-0 {{VERSIONS_HIDDEN}}" data-section="versions-section">Versions</a>
     </nav>
 
     <div class="flex gap-8 pt-12 pb-16 max-md:block max-md:py-10">
@@ -54,10 +54,10 @@
             <li><a href="#details-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
                 rounded-md text-[var(--text-muted)] hover:text-[var(--link)] hover:bg-accent-subtle
                 transition-all border-l-2 border-transparent" data-section="details-section">Details</a></li>
-            <li class="hidden" id="sidebar-caveats"><a href="#caveats-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
+            <li class="{{CAVEATS_HIDDEN}}" id="sidebar-caveats"><a href="#caveats-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
                 rounded-md text-[var(--text-muted)] hover:text-[var(--link)] hover:bg-accent-subtle
                 transition-all border-l-2 border-transparent" data-section="caveats-section">Caveats</a></li>
-            <li class="hidden" id="sidebar-versions"><a href="#versions-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
+            <li class="{{VERSIONS_HIDDEN}}" id="sidebar-versions"><a href="#versions-section" class="sidebar-link block text-[0.85rem] font-medium py-1.5 px-3
                 rounded-md text-[var(--text-muted)] hover:text-[var(--link)] hover:bg-accent-subtle
                 transition-all border-l-2 border-transparent" data-section="versions-section">Versions</a></li>
           </ul>
@@ -68,18 +68,18 @@
       <main id="main" class="flex-1 min-w-0">
         <div class="mb-8">
           <div class="flex items-center gap-3 mb-2 flex-wrap">
-            <h1 class="text-[2rem] font-extrabold tracking-tight max-sm:text-[1.5rem]" id="detail-name"></h1>
-            <span class="font-mono text-[0.85rem] bg-accent-subtle text-[var(--link)] px-2 py-0.5 rounded-xl whitespace-nowrap" id="detail-version"></span>
-            <span id="detail-stability-badge"></span>
+            <h1 class="text-[2rem] font-extrabold tracking-tight max-sm:text-[1.5rem]" id="detail-name">{{DETAIL_NAME}}</h1>
+            <span class="font-mono text-[0.85rem] bg-accent-subtle text-[var(--link)] px-2 py-0.5 rounded-xl whitespace-nowrap" id="detail-version">{{DETAIL_VERSION}}</span>
+            <span id="detail-stability-badge">{{DETAIL_STABILITY_BADGE}}</span>
           </div>
-          <p class="text-[var(--text-muted)] text-[1.1rem]" id="detail-desc"></p>
+          <p class="text-[var(--text-muted)] text-[1.1rem]" id="detail-desc">{{DETAIL_DESC}}</p>
         </div>
 
         <!-- Install Command -->
         <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out scroll-mt-24" id="install-section">
           <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">Install</h2>
           <div class="inline-flex items-center gap-3 bg-[var(--code-bg)] border border-[var(--code-border)] rounded-md px-5 py-3.5 font-mono text-[0.95rem] text-[var(--text)] w-full shadow-none">
-            <code id="install-command"></code>
+            <code id="install-command">{{INSTALL_COMMAND}}</code>
             <button type="button" class="copy-btn flex items-center justify-center w-8 h-8 border-none rounded-sm bg-accent text-white cursor-pointer transition-all duration-200 ease-in-out hover:bg-accent-hover hover:scale-105 shrink-0 ml-auto" onclick="copyText('install-command', this)" aria-label="Copy install command">
               <svg class="icon-copy w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -98,28 +98,28 @@
           <dl class="grid gap-0">
             <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
               <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Homepage</dt>
-              <dd class="text-[0.9rem]"><a id="detail-homepage" href="" target="_blank" rel="noopener noreferrer"></a></dd>
+              <dd class="text-[0.9rem]"><a id="detail-homepage" href="{{DETAIL_HOMEPAGE_HREF}}" target="_blank" rel="noopener noreferrer">{{DETAIL_HOMEPAGE_TEXT}}</a></dd>
             </div>
 {{EXTRA_DETAIL_ROW}}
             <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5">
               <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Version</dt>
-              <dd class="text-[0.9rem]" id="detail-version-detail"></dd>
+              <dd class="text-[0.9rem]" id="detail-version-detail">{{DETAIL_VERSION}}</dd>
             </div>
             <div class="flex items-baseline py-2.5 border-b border-[var(--card-border)] first:pt-0 last:border-b-0 last:pb-0 max-sm:flex-col max-sm:gap-0.5" id="stability-row">
               <dt class="w-[120px] shrink-0 text-[0.85rem] font-semibold text-[var(--text-muted)] max-sm:w-auto">Stability</dt>
-              <dd class="text-[0.9rem]" id="detail-stability-detail"></dd>
+              <dd class="text-[0.9rem]" id="detail-stability-detail">{{DETAIL_STABILITY_TEXT}}</dd>
             </div>
           </dl>
         </div>
 
         <!-- Caveats -->
-        <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out hidden scroll-mt-24" id="caveats-section">
+        <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out {{CAVEATS_HIDDEN}} scroll-mt-24" id="caveats-section">
           <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">Caveats</h2>
-          <pre class="bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm p-4 font-mono text-[0.85rem] text-[var(--text)] whitespace-pre-wrap break-words leading-normal overflow-x-auto" id="detail-caveats"></pre>
+          <pre class="bg-[var(--code-bg)] border border-[var(--code-border)] rounded-sm p-4 font-mono text-[0.85rem] text-[var(--text)] whitespace-pre-wrap break-words leading-normal overflow-x-auto" id="detail-caveats">{{DETAIL_CAVEATS}}</pre>
         </div>
 
         <!-- Version History -->
-        <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out hidden scroll-mt-24" id="versions-section">
+        <div class="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-6 mb-5 transition-all duration-200 ease-in-out {{VERSIONS_HIDDEN}} scroll-mt-24" id="versions-section">
           <h2 class="text-[0.8rem] font-semibold mb-4 uppercase tracking-widest text-[var(--text-muted)]">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
               <circle cx="12" cy="12" r="10"/>
@@ -137,7 +137,7 @@
                   <th><span class="sr-only">Release notes link</span></th>
                 </tr>
               </thead>
-              <tbody id="versions-body"></tbody>
+              <tbody id="versions-body">{{VERSIONS_ROWS}}</tbody>
             </table>
           </div>
         </div>
@@ -149,13 +149,14 @@
 
   <script src="{{ROOT}}shared.js"></script>
   <script>
-    // --- Item data injected at build time (const formula/cask + type-specific field) ---
+    // --- Search index injected at build time; page content is server-rendered ---
 {{DETAIL_SCRIPT}}
 
-    // --- Init shared components ---
+    // --- Progressive enhancement only (content already present without JS) ---
     initTheme();
     initSearch(data, { basePath: '../../' });
     initCopyButtons();
+    initSectionTracking();
   </script>
 </body>
 </html>
