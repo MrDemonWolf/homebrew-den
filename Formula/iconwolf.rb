@@ -4,14 +4,16 @@ class Iconwolf < Formula
   version "0.4.0"
   license "MIT"
 
+  depends_on "node"
+  depends_on :macos
+  depends_on arch: :arm64
+
   on_macos do
-    if Hardware::CPU.arm?
-      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.4.0/iconwolf-macos-arm64.tar.gz"
-      sha256 "e1496a7e38cb7d000a2341b68cfdb9f52a834848eb103b01dbe5e5288db1b742"
+    on_arm do
+      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v#{version}/iconwolf-macos-arm64.tar.gz"
+      sha256 "3d2fc96dcb820723caf70c6e9f8a1a37145a120eb66701d7961507f52e6f4c8b"
     end
   end
-
-  depends_on "node"
 
   def install
     libexec.install Dir["*"]
@@ -46,6 +48,6 @@ class Iconwolf < Formula
   end
 
   test do
-    assert_match "0.4.0", shell_output("#{bin}/iconwolf --version")
+    assert_match version.to_s, shell_output("#{bin}/iconwolf --version")
   end
 end
