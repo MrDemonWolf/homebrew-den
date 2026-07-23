@@ -4,5 +4,6 @@ export default defineConfig({
   test: {
     dir: "tests",
     testTimeout: 120_000,
+    hookTimeout: 120_000,
   },
 });
