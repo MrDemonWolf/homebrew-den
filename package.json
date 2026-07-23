@@ -8,6 +8,6 @@
     "@tailwindcss/cli": "^4",
     "cheerio": "^1.0.0",
     "tailwindcss": "^4",
-    "vitest": "^3"
+    "vitest": "^3.2.7"
   }
 }
