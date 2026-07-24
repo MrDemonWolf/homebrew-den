@@ -63,8 +63,8 @@ class <Name> < Formula
   version "<version>"
   license "MIT"
 
-  depends_on :macos
   depends_on arch: :arm64
+  depends_on :macos
 
   on_macos do
     on_arm do
