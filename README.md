@@ -60,18 +60,15 @@ Create a file at `Formula/<name>.rb` pointing at a pre-built release binary:
 class <Name> < Formula
   desc "<Short description>"
   homepage "https://github.com/<owner>/<repo>"
+  url "https://github.com/<owner>/<repo>/releases/download/v<version>/<name>-macos-arm64.tar.gz"
   version "<version>"
+  sha256 "<sha256>"
   license "MIT"
 
+  # Apple-Silicon macOS only: keep the url top-level (a nested on_macos/on_arm
+  # url is invalid on other platforms) and restrict installation via depends_on.
   depends_on arch: :arm64
   depends_on :macos
-
-  on_macos do
-    on_arm do
-      url "https://github.com/<owner>/<repo>/releases/download/v#{version}/<name>-macos-arm64.tar.gz"
-      sha256 "<sha256>"
-    end
-  end
 
   def install
     bin.install "<name>"
