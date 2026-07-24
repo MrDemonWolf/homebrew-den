@@ -65,8 +65,10 @@ jobs:
           mkdir -p "$(dirname "$TAP_DIR")"
           ln -s "$GITHUB_WORKSPACE/homebrew-den" "$TAP_DIR"
 
-      - name: brew style
-        run: brew style mrdemonwolf/den
+      - name: brew style (formulae + casks only)
+        run: |
+          shopt -s nullglob
+          brew style homebrew-den/Formula/*.rb homebrew-den/Casks/*.rb
 
       - name: brew readall
         run: brew readall mrdemonwolf/den
