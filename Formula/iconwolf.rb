@@ -4,9 +4,9 @@ class Iconwolf < Formula
   version "0.4.0"
   license "MIT"
 
-  depends_on "node"
   depends_on :macos
   depends_on arch: :arm64
+  depends_on "node"
 
   on_macos do
     on_arm do
