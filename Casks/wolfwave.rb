@@ -18,8 +18,8 @@ cask "wolfwave" do
   app "WolfWave.app"
 
   zap trash: [
-    "~/Library/Preferences/com.mrdemonwolf.wolfwave.plist",
     "~/Library/Caches/com.mrdemonwolf.wolfwave",
     "~/Library/Logs/com.mrdemonwolf.wolfwave",
+    "~/Library/Preferences/com.mrdemonwolf.wolfwave.plist",
   ]
 end
