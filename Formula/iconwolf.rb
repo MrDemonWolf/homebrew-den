@@ -1,19 +1,17 @@
 class Iconwolf < Formula
   desc "Cross-platform app icon generator for Expo/React Native projects"
   homepage "https://github.com/MrDemonWolf/iconwolf"
+  url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.4.0/iconwolf-macos-arm64.tar.gz"
   version "0.4.0"
+  sha256 "3d2fc96dcb820723caf70c6e9f8a1a37145a120eb66701d7961507f52e6f4c8b"
   license "MIT"
 
+  # Only an Apple-Silicon macOS binary is published, so the url is top-level
+  # (a nested on_macos/on_arm-only url is invalid on other platforms) and the
+  # dependencies restrict installation to arm64 macOS.
   depends_on arch: :arm64
   depends_on :macos
   depends_on "node"
-
-  on_macos do
-    on_arm do
-      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v#{version}/iconwolf-macos-arm64.tar.gz"
-      sha256 "3d2fc96dcb820723caf70c6e9f8a1a37145a120eb66701d7961507f52e6f4c8b"
-    end
-  end
 
   def install
     libexec.install Dir["*"]
