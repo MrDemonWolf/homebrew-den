@@ -1,6 +1,11 @@
+// Client behavior for the tap site. Ported from the old site/shared.js; bundled
+// by Astro. Progressive enhancement only — every page is server-rendered and
+// works with JS disabled. The dead detectStability copy was dropped (stability
+// is computed at build time in src/lib/stability.mjs).
+
 // --- SVG icons ---
-const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+const copyIcon = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const checkIcon = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
 // --- HTML escaping (defense-in-depth for any interpolated value) ---
 // Also neutralizes the U+2028/U+2029 line separators that can terminate a JS
@@ -26,35 +31,6 @@ function safeUrl(value) {
     return /^(https?:|mailto:)/i.test(url) ? url : '#';
   }
   return url;
-}
-
-// --- Stability detection (mirrors build-site.sh detect_stability; parity is
-//     guarded by tests/stability-parity.test.js). Used for search + tests. ---
-function detectStability(version, options) {
-  const opts = options || {};
-  let stability = 'stable';
-
-  if (opts.isGitHubPrerelease) {
-    stability = 'pre-release';
-  }
-
-  if (/^0\./.test(version) && stability === 'stable') {
-    stability = 'alpha';
-  }
-
-  if (/-(alpha|beta|rc|dev|canary|nightly|preview)/i.test(version)) {
-    if (/alpha/i.test(version)) {
-      stability = 'alpha';
-    } else if (/beta/i.test(version)) {
-      stability = 'beta';
-    } else if (/rc/i.test(version)) {
-      stability = 'rc';
-    } else {
-      stability = 'pre-release';
-    }
-  }
-
-  return stability;
 }
 
 // --- Copy buttons ---
@@ -254,9 +230,10 @@ function initSearch(data, opts) {
       return;
     }
 
-    var activeClasses = SEARCH_ACTIVE.join(' ');
+    // Rendering always resets activeIndex to -1, so no row starts active;
+    // syncActive() applies SEARCH_ACTIVE on arrow-key navigation.
     searchResults.innerHTML = matches.map(function(item, i) {
-      return '<a id="search-option-' + i + '" role="option" aria-selected="false" href="' + escapeHtml(safeUrl(item.href)) + '" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle' + (i === activeIndex ? ' ' + activeClasses : '') + '" data-index="' + i + '">' +
+      return '<a id="search-option-' + i + '" role="option" aria-selected="false" href="' + escapeHtml(safeUrl(item.href)) + '" class="search-result flex items-center justify-between px-4 py-3 text-[var(--text)] no-underline border-b border-[var(--card-border)] transition-[background] duration-200 ease-in-out cursor-pointer last:border-b-0 hover:bg-accent-subtle">' +
         '<div class="flex flex-col gap-0.5 min-w-0">' +
           '<span class="font-semibold text-[var(--link)] text-[0.95rem]">' + escapeHtml(item.name) + '</span>' +
           '<span class="text-[var(--text-muted)] text-[0.8rem] whitespace-nowrap overflow-hidden text-ellipsis">' + escapeHtml(item.desc) + '</span>' +
@@ -361,14 +338,19 @@ function initSectionTracking() {
     return observer;
   }
 
-  var sectionObserver = setupObserver();
-
-  // Re-observe when caveats/versions sections un-hide.
-  var mutationObserver = new MutationObserver(function() {
-    sectionObserver.disconnect();
-    sectionObserver = setupObserver();
-  });
-  document.querySelectorAll('[id$="-section"]').forEach(function(el) {
-    mutationObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
-  });
+  // Section visibility is decided at build time, so the observed set never changes.
+  setupObserver();
 }
+
+// --- Bootstrap (module script runs after the DOM is parsed) ---
+var dataEl = document.getElementById('package-data');
+var data = dataEl ? JSON.parse(dataEl.textContent) : { formulae: [], casks: [] };
+
+// Exposed for the inline onclick="copyText(...)" on the large copy buttons.
+window.copyText = copyText;
+
+initTheme();
+// BASE_URL has no trailing slash; add one so hrefs join as /base/formulae/name/.
+initSearch(data, { basePath: import.meta.env.BASE_URL.replace(/\/$/, "") + "/" });
+initCopyButtons();
+if (document.getElementById('sidebar-mobile')) initSectionTracking();
