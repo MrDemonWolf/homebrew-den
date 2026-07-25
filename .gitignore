@@ -1,6 +1,7 @@
 _site/
+dist/
 node_modules/
-site/output.css
+.astro/
 .DS_Store
 
 # Claude Code
