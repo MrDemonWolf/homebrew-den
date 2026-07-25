@@ -1,8 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { loadSharedFunction } from "./helpers.js";
-
-// Exercises the real detectStability() shipped in site/shared.js.
-const detectStability = loadSharedFunction("detectStability");
+// Exercises the single build-time classifier (also used to render the site).
+import { detectStability } from "../src/lib/stability.mjs";
 
 describe("Stability detection", () => {
   it("detects 0.x.x as alpha", () => {

@@ -48,7 +48,7 @@ describe("Hostile metadata is safely escaped in generated HTML", () => {
   });
 
   it("keeps the embedded search index parseable as JSON", () => {
-    const match = html.match(/const data = (\{.*?\});/s);
+    const match = html.match(/id="package-data"[^>]*>([\s\S]*?)<\/script>/);
     expect(match).not.toBeNull();
     const data = JSON.parse(match[1]);
     expect(Array.isArray(data.formulae)).toBe(true);
@@ -57,9 +57,9 @@ describe("Hostile metadata is safely escaped in generated HTML", () => {
   });
 
   it("neutralizes the U+2028/U+2029 separators in embedded JSON", () => {
-    const scriptBlock = html.slice(html.indexOf("const data ="));
-    expect(scriptBlock).not.toContain("\u2028");
-    expect(scriptBlock).not.toContain("\u2029");
+    const match = html.match(/id="package-data"[^>]*>([\s\S]*?)<\/script>/);
+    expect(match[1]).not.toContain("\u2028");
+    expect(match[1]).not.toContain("\u2029");
   });
 
   it("blocks a javascript: homepage URL (collapses to #)", () => {
@@ -67,9 +67,5 @@ describe("Hostile metadata is safely escaped in generated HTML", () => {
     expect(hrefMatch).not.toBeNull();
     expect(hrefMatch[1]).not.toMatch(/^javascript:/i);
     expect(hrefMatch[1]).toBe("#");
-  });
-
-  it("has no unresolved template placeholders", () => {
-    expect(html.match(/\{\{[A-Z_]+\}\}/g)).toBeNull();
   });
 });

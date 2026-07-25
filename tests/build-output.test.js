@@ -1,44 +1,22 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
-  runBuild,
   readSiteFile,
-  extractJSON,
+  extractPackageData,
   expectFileExists,
-  expectNoPlaceholder,
-  expectNoUnresolvedPlaceholders,
-  listBuiltHtml,
+  bundledAssets,
   listFormulae,
   listCasks,
+  BASE,
 } from "./helpers.js";
-
-let buildOutput = "";
-
-beforeAll(() => {
-  buildOutput = runBuild();
-});
 
 const formulae = listFormulae();
 const casks = listCasks();
 
-describe("Build execution", () => {
-  it("completes without errors", () => {
-    expect(buildOutput).toContain("Site built successfully");
-  });
-
-  it("reports formula count", () => {
-    expect(buildOutput).toMatch(/Formulae:\s*\d+/);
-  });
-
-  it("reports cask count", () => {
-    expect(buildOutput).toMatch(/Casks:\s*\d+/);
-  });
-});
-
 describe("File structure", () => {
   it("generates index.html", () => expectFileExists("index.html"));
-  it("generates output.css", () => expectFileExists("output.css"));
+  it("emits bundled CSS under _astro/", () => expect(bundledAssets(".css").length).toBeGreaterThan(0));
+  it("emits bundled JS under _astro/", () => expect(bundledAssets(".js").length).toBeGreaterThan(0));
   it("copies favicon.svg", () => expectFileExists("favicon.svg"));
-  it("copies shared.js", () => expectFileExists("shared.js"));
 
   it.each(formulae)("generates $name formula page", ({ name }) => {
     expectFileExists("formulae", name, "index.html");
@@ -49,32 +27,28 @@ describe("File structure", () => {
   });
 });
 
-describe("Template substitution", () => {
-  it("no unresolved {{...}} placeholders in ANY generated page", () => {
-    for (const rel of listBuiltHtml()) {
-      expectNoUnresolvedPlaceholders(readSiteFile(rel));
-    }
-  });
-
-  it("splices shared partials in index.html", () => {
+describe("Layout rendering", () => {
+  it("index renders nav, search modal and footer", () => {
     const html = readSiteFile("index.html");
-    ["NAV", "SEARCH_MODAL", "FOOTER", "ROOT", "PACKAGES_JSON", "FORMULAE_ROWS", "CASKS_ROWS"].forEach(
-      (p) => expectNoPlaceholder(html, p),
-    );
+    expect(html).toContain('id="search-overlay"');
+    expect(html).toContain("<nav");
+    expect(html).toContain("<footer");
   });
 });
 
-describe("JSON validity", () => {
-  it("injected search index in index.html is parseable", () => {
-    const parsed = extractJSON(readSiteFile("index.html"), "data");
+describe("Embedded search index", () => {
+  it("index.html embeds parseable package data", () => {
+    const parsed = extractPackageData(readSiteFile("index.html"));
     expect(Array.isArray(parsed.formulae)).toBe(true);
     expect(Array.isArray(parsed.casks)).toBe(true);
+    expect(parsed.formulae.length).toBe(formulae.length);
+    expect(parsed.casks.length).toBe(casks.length);
   });
 
   it.each([...formulae.map((f) => ["formulae", f]), ...casks.map((c) => ["casks", c])])(
-    "%s detail page embeds a parseable search index",
+    "%s detail page embeds parseable package data",
     (dir, pkg) => {
-      const parsed = extractJSON(readSiteFile(`${dir}/${pkg.name}/index.html`), "data");
+      const parsed = extractPackageData(readSiteFile(`${dir}/${pkg.name}/index.html`));
       expect(parsed).toBeDefined();
     },
   );
@@ -104,23 +78,21 @@ describe("Cask metadata (server-rendered, derived from Casks/*.rb)", () => {
 describe("Server-rendered package tables (work without JS)", () => {
   it.each(formulae)("index lists formula $name", ({ name }) => {
     const html = readSiteFile("index.html");
-    expect(html).toContain(`href="formulae/${name}/"`);
+    expect(html).toContain(`href="${BASE}/formulae/${name}/"`);
     expect(html).toContain(`brew install ${name}`);
   });
 
   it.each(casks)("index lists cask $name", ({ name }) => {
     const html = readSiteFile("index.html");
-    expect(html).toContain(`href="casks/${name}/"`);
+    expect(html).toContain(`href="${BASE}/casks/${name}/"`);
     expect(html).toContain(`brew install --cask ${name}`);
   });
 });
 
 describe("CSS output", () => {
-  it("is non-empty", () => {
-    expect(readSiteFile("output.css").length).toBeGreaterThan(0);
-  });
-
-  it("contains CSS custom properties", () => {
-    expect(readSiteFile("output.css")).toMatch(/--/);
+  it("is non-empty and contains CSS custom properties", () => {
+    const css = readSiteFile(`_astro/${bundledAssets(".css")[0]}`);
+    expect(css.length).toBeGreaterThan(0);
+    expect(css).toMatch(/--/);
   });
 });

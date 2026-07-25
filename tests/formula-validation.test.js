@@ -1,16 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { readdirSync, readFileSync, existsSync } from "node:fs";
-import path from "node:path";
-import { FORMULA_DIR, extractFormulaField } from "./helpers.js";
+import { listFormulae, extractFormulaField } from "./helpers.js";
 
-const formulaFiles = existsSync(FORMULA_DIR)
-  ? readdirSync(FORMULA_DIR).filter((f) => f.endsWith(".rb"))
-  : [];
-
-describe.each(formulaFiles)("Formula: %s", (filename) => {
-  const filepath = path.join(FORMULA_DIR, filename);
-  const content = readFileSync(filepath, "utf-8");
-  const name = filename.replace(/\.rb$/, "");
+// Catalog is the single source (src/lib/catalog.mjs); each entry carries its raw
+// .rb `content` so field/structure checks need no second directory scan.
+describe.each(listFormulae())("Formula: $filename", (f) => {
+  const content = f.content;
 
   it("has a desc field (non-empty, <=80 chars)", () => {
     const desc = extractFormulaField(content, /^\s*desc\s+"(.+)"/m);
@@ -45,7 +39,7 @@ describe.each(formulaFiles)("Formula: %s", (filename) => {
   });
 
   it("class name matches filename (capitalized)", () => {
-    const expected = name.charAt(0).toUpperCase() + name.slice(1);
+    const expected = f.name.charAt(0).toUpperCase() + f.name.slice(1);
     const className = extractFormulaField(content, /^class\s+(\w+)\s+</m);
     expect(className).toBe(expected);
   });
