@@ -1,0 +1,36 @@
+---
+// Server-rendered version-history rows (ports render_version_rows). Reuses the
+// single build-time stability classifier so there is one source of truth.
+import StabilityBadge from "./StabilityBadge.astro";
+import { detectStability } from "../lib/stability.mjs";
+import { safeUrl } from "../lib/serialize.mjs";
+
+const { versions, current } = Astro.props;
+const BADGE_BASE =
+  "inline-block font-sans text-[0.7rem] font-bold uppercase tracking-[0.04em] px-2 py-0.5 rounded-xl whitespace-nowrap align-middle";
+
+const rows = versions.map((v) => ({
+  ...v,
+  stability: detectStability(v.version, { isGitHubPrerelease: v.prerelease }),
+  isCurrent: v.version === current,
+}));
+---
+<tbody>
+  {rows.map((v) => (
+    <tr>
+      <td data-label="Version">
+        <span class="font-mono text-[0.85rem]">v{v.version}</span>
+        {v.isCurrent && <span class={`${BADGE_BASE} bg-accent-subtle text-[var(--link)]`}> Current</span>}
+      </td>
+      <td data-label="Date">{v.date}</td>
+      <td data-label="Status">
+        {v.stability === "stable"
+          ? <span class={`${BADGE_BASE} bg-[rgba(34,197,94,0.15)] text-[#16a34a]`}>Stable</span>
+          : <StabilityBadge stability={v.stability} />}
+      </td>
+      <td data-label="">
+        {v.url && <a href={safeUrl(v.url)} target="_blank" rel="noopener noreferrer" class="text-[var(--link)]">Release notes</a>}
+      </td>
+    </tr>
+  ))}
+</tbody>

@@ -1,0 +1,34 @@
+---
+// Server-rendered catalog table (ports package_row/empty_row). `packages` carry
+// a precomputed `stability`. hrefPrefix/installPrefix differ per formula vs cask.
+import StabilityBadge from "./StabilityBadge.astro";
+const { packages, hrefPrefix, installPrefix, emptyText } = Astro.props;
+---
+<div class="table-wrap bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md overflow-hidden shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:rounded-none max-sm:border-x-0">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Version</th>
+        <th>Description</th>
+        <th>Install</th>
+      </tr>
+    </thead>
+    <tbody>
+      {packages.length === 0 && (
+        <tr><td colspan="4" class="text-center text-[var(--text-muted)] py-8">{emptyText}</td></tr>
+      )}
+      {packages.map((pkg) => {
+        const install = `${installPrefix}${pkg.name}`;
+        return (
+          <tr>
+            <td data-label="Name"><a href={`${hrefPrefix}${pkg.name}/`} class="font-semibold text-[var(--link)]">{pkg.name}</a></td>
+            <td data-label="Version"><span class="font-mono text-[0.8rem] bg-accent-subtle text-[var(--link)] px-2 py-0.5 rounded-xl whitespace-nowrap">v{pkg.version}</span>{" "}<StabilityBadge stability={pkg.stability} /></td>
+            <td data-label="Description">{pkg.desc}</td>
+            <td data-label="Install"><span class="font-mono text-[0.85rem] text-[var(--text-muted)] inline-flex items-center gap-2"><code>{install}</code><button type="button" class="copy-sm inline-flex items-center justify-center w-6 h-6 border-none rounded-sm bg-transparent text-[var(--text-muted)] cursor-pointer transition-all duration-200 ease-in-out hover:text-[var(--link)] hover:bg-accent-subtle" data-copy={install} aria-label="Copy install command"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span></td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
