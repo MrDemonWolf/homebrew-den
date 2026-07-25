@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Compare each formula/cask's pinned version against the latest GitHub release.
 // Exits non-zero if any package is behind, so a scheduled run flags staleness.
-import { readdirSync, readFileSync, existsSync } from "node:fs";
 import path from "node:path";
+import { loadCatalog } from "../src/lib/catalog.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const token = process.env.GITHUB_TOKEN;
@@ -12,34 +12,13 @@ const headers = {
   ...(token ? { Authorization: `token ${token}` } : {}),
 };
 
-const field = (content, name) => {
-  const m = content.match(new RegExp(`^\\s*${name}\\s+"([^"]*)"`, "m"));
-  return m ? m[1] : null;
-};
-const repoFrom = (url) => {
-  const m = (url || "").match(/github\.com\/([^/]+\/[^/"#]+)/);
-  return m ? m[1].replace(/\.git$/, "") : null;
-};
 const norm = (v) => (v || "").replace(/^v/, "");
-
-function collect() {
-  const items = [];
-  for (const [dir, kind] of [["Formula", "formula"], ["Casks", "cask"]]) {
-    const d = path.join(ROOT, dir);
-    if (!existsSync(d)) continue;
-    for (const f of readdirSync(d).filter((x) => x.endsWith(".rb"))) {
-      const c = readFileSync(path.join(d, f), "utf-8");
-      const name = f.replace(/\.rb$/, "");
-      const repo = repoFrom(field(c, "url")) || repoFrom(field(c, "homepage"));
-      items.push({ name, kind, version: field(c, "version"), repo });
-    }
-  }
-  return items;
-}
+const cat = loadCatalog(ROOT);
+const items = [...cat.formulae, ...cat.casks];
 
 let stale = 0;
 let errors = 0;
-for (const it of collect()) {
+for (const it of items) {
   if (!it.repo) {
     console.log(`? ${it.name}: no GitHub repo detected, skipping`);
     continue;
