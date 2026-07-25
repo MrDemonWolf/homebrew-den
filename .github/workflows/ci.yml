@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   test:
-    name: Lint, build & test
+    name: Build & test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,16 +31,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: ShellCheck
-        run: shellcheck scripts/*.sh
-
       - name: npm audit
         run: npm audit --audit-level=high
 
       - name: Build site (strict — fails if the GitHub API is unreachable)
-        run: bash scripts/build-site.sh
+        run: npx astro build
         env:
+          STRICT_RELEASES: '1'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify the generated site
+        run: node scripts/verify-site.mjs _site
 
       - name: Run tests
         run: npm test
@@ -58,6 +59,13 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           path: homebrew-den
+
+      # verify-checksums.mjs runs on Node (builtins + src/lib/catalog.mjs only,
+      # so no npm ci is needed) — pin the runtime instead of trusting the image.
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
 
       - name: Link the repo as a Homebrew tap
         run: |
@@ -84,7 +92,7 @@ jobs:
           done
 
       - name: Verify release artifact checksums
-        run: bash homebrew-den/scripts/verify-checksums.sh
+        run: node homebrew-den/scripts/verify-checksums.mjs
 
       - name: brew livecheck (informational)
         continue-on-error: true
