@@ -1,0 +1,31 @@
+---
+import Base from "../../layouts/Base.astro";
+import DetailPage from "../../components/DetailPage.astro";
+import { loadCatalog } from "../../lib/catalog.mjs";
+import { resolveReleases } from "../../lib/releases.mjs";
+import { detectStability } from "../../lib/stability.mjs";
+
+export async function getStaticPaths() {
+  const cat = loadCatalog(process.cwd());
+  return cat.casks.map((pkg) => ({ params: { name: pkg.name }, props: { pkg } }));
+}
+
+const { pkg } = Astro.props;
+const { isPrerelease, versions } = await resolveReleases(pkg.repo, pkg.version);
+const stability = detectStability(pkg.version, { isGitHubPrerelease: isPrerelease });
+---
+<Base title={`${pkg.name} - Homebrew Den`} description={`Install ${pkg.name} from the Homebrew Den tap.`}>
+  <DetailPage
+    name={pkg.name}
+    version={pkg.version}
+    desc={pkg.desc}
+    homepage={pkg.homepage}
+    caveats={pkg.caveats}
+    stability={stability}
+    versions={versions}
+    installCommand={`brew install --cask ${pkg.name}`}
+    parent="Casks"
+    parentAnchor="casks"
+    extraRow={{ label: "Application", value: pkg.appName || pkg.name }}
+  />
+</Base>

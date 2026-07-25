@@ -1,21 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Homebrew Den - A Homebrew Tap by MrDemonWolf, Inc.</title>
-  <meta name="description" content="A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc. Install formulae and casks with a single command.">
-  <link rel="icon" type="image/svg+xml" href="{{ROOT}}favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ROOT}}output.css">
-</head>
-<body class="font-sans leading-relaxed">
-  {{NAV}}
+---
+import Base from "../layouts/Base.astro";
+import PackageTable from "../components/PackageTable.astro";
+import { loadCatalog } from "../lib/catalog.mjs";
+import { resolveReleases } from "../lib/releases.mjs";
+import { detectStability } from "../lib/stability.mjs";
 
-  {{SEARCH_MODAL}}
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const cat = loadCatalog(process.cwd());
 
+async function withStability(pkgs) {
+  return Promise.all(
+    pkgs.map(async (p) => {
+      const { isPrerelease } = await resolveReleases(p.repo, p.version);
+      return { ...p, stability: detectStability(p.version, { isGitHubPrerelease: isPrerelease }) };
+    })
+  );
+}
+
+const formulae = await withStability(cat.formulae);
+const casks = await withStability(cat.casks);
+---
+<Base
+  title="Homebrew Den - A Homebrew Tap by MrDemonWolf, Inc."
+  description="A Homebrew tap for CLI tools and macOS apps by MrDemonWolf, Inc. Install formulae and casks with a single command."
+>
   <!-- Hero -->
   <section id="main" class="bg-[var(--hero-gradient)] border-b border-[var(--card-border)] py-20 px-6 text-center transition-[background,border-color] duration-200 ease-in-out max-sm:py-12 max-sm:px-4">
     <h1 class="text-[2.75rem] font-extrabold mb-3 tracking-tight max-sm:text-[1.875rem]">Homebrew <span class="text-[var(--link)]">Den</span></h1>
@@ -23,19 +31,19 @@
     <div class="inline-flex items-center gap-3 bg-[var(--code-bg)] border border-[var(--code-border)] rounded-md px-5 py-3.5 font-mono text-[0.95rem] text-[var(--text)] shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:text-[0.85rem] max-sm:px-4 max-sm:py-3">
       <code class="select-all" id="tap-command">brew tap mrdemonwolf/den</code>
       <button type="button" class="copy-btn flex items-center justify-center w-8 h-8 border-none rounded-sm bg-accent text-white cursor-pointer transition-all duration-200 ease-in-out hover:bg-accent-hover hover:scale-105 shrink-0" onclick="copyText('tap-command', this)" aria-label="Copy tap command">
-        <svg class="icon-copy w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg aria-hidden="true" focusable="false" class="icon-copy w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
         </svg>
-        <svg class="icon-check w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <svg aria-hidden="true" focusable="false" class="icon-check w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </button>
     </div>
     <div class="mt-7 flex items-center justify-center gap-3 text-[0.9rem] text-[var(--text-muted)]">
-      <a href="#formulae-section" class="font-semibold text-[var(--link)]">{{FORMULA_COUNT}} formulae</a>
+      <a href="#formulae-section" class="font-semibold text-[var(--link)]">{formulae.length} formulae</a>
       <span class="text-[var(--card-border)]">&middot;</span>
-      <a href="#casks-section" class="font-semibold text-[var(--link)]">{{CASK_COUNT}} casks</a>
+      <a href="#casks-section" class="font-semibold text-[var(--link)]">{casks.length} casks</a>
     </div>
   </section>
 
@@ -69,55 +77,13 @@
   <section class="max-w-[1080px] mx-auto py-16 px-6 border-t border-[var(--card-border)] transition-[border-color] duration-200 ease-in-out max-sm:py-10 max-sm:px-4 scroll-mt-20" id="formulae-section">
     <h2 class="text-[1.75rem] font-bold mb-2 tracking-tight max-sm:text-[1.375rem]">Formulae</h2>
     <p class="text-[var(--text-muted)] mb-8 text-base">Command-line tools available in the tap.</p>
-    <div class="table-wrap bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md overflow-hidden shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:rounded-none max-sm:border-x-0">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Description</th>
-            <th>Install</th>
-          </tr>
-        </thead>
-        <tbody>
-{{FORMULAE_ROWS}}
-        </tbody>
-      </table>
-    </div>
+    <PackageTable packages={formulae} hrefPrefix={`${base}/formulae/`} installPrefix="brew install " emptyText="No formulae available yet." />
   </section>
 
   <!-- Casks -->
   <section class="max-w-[1080px] mx-auto py-16 px-6 border-t border-[var(--card-border)] transition-[border-color] duration-200 ease-in-out max-sm:py-10 max-sm:px-4 scroll-mt-20" id="casks-section">
     <h2 class="text-[1.75rem] font-bold mb-2 tracking-tight max-sm:text-[1.375rem]">Casks</h2>
     <p class="text-[var(--text-muted)] mb-8 text-base">macOS applications available in the tap.</p>
-    <div class="table-wrap bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md overflow-hidden shadow-[var(--shadow)] transition-all duration-200 ease-in-out max-sm:rounded-none max-sm:border-x-0">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Description</th>
-            <th>Install</th>
-          </tr>
-        </thead>
-        <tbody>
-{{CASKS_ROWS}}
-        </tbody>
-      </table>
-    </div>
+    <PackageTable packages={casks} hrefPrefix={`${base}/casks/`} installPrefix="brew install --cask " emptyText="No casks available yet." />
   </section>
-
-  {{FOOTER}}
-
-  <script src="{{ROOT}}shared.js"></script>
-  <script>
-    // --- Package data injected at build time (powers the search palette) ---
-    const data = {{PACKAGES_JSON}};
-
-    // --- Init shared components ---
-    initTheme();
-    initSearch(data, { basePath: '' });
-    initCopyButtons();
-  </script>
-</body>
-</html>
+</Base>
