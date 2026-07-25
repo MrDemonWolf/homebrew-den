@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { runBuild, loadHTML, expectFileExists, listFormulae, listCasks } from "./helpers.js";
-
-beforeAll(() => {
-  runBuild();
-});
+import { loadHTML, expectFileExists, bundledAssets, listFormulae, listCasks, BASE } from "./helpers.js";
 
 const formulae = listFormulae();
 const casks = listCasks();
@@ -19,17 +15,16 @@ describe("Index page", () => {
   });
 
   it("has meta description", () => {
-    const desc = $('meta[name="description"]').attr("content");
-    expect(desc).toBeTruthy();
+    expect($('meta[name="description"]').attr("content")).toBeTruthy();
   });
 
-  it("references output.css", () => {
+  it("references a bundled stylesheet", () => {
     const links = $('link[rel="stylesheet"]').map((_, el) => $(el).attr("href")).get();
-    expect(links).toContain("output.css");
+    expect(links.some((h) => /\/_astro\/.*\.css$/.test(h))).toBe(true);
   });
 
   it("references favicon.svg", () => {
-    expect($('link[rel="icon"]').attr("href")).toBe("favicon.svg");
+    expect($('link[rel="icon"]').attr("href")).toBe(`${BASE}/favicon.svg`);
   });
 
   it("has nav element", () => {
@@ -57,9 +52,9 @@ describe("Index page", () => {
     expect(footer).toContain("MrDemonWolf");
   });
 
-  it("embeds the search index", () => {
-    const scripts = $("script").map((_, el) => $(el).html()).get().join("");
-    expect(scripts).toContain("const data =");
+  it("embeds the search index as JSON", () => {
+    expect($("#package-data").attr("type")).toBe("application/json");
+    expect($("#package-data").length).toBe(1);
   });
 });
 
@@ -105,15 +100,15 @@ describe.each(formulae)("Formula page ($name)", (f) => {
     expect(title).toContain("Homebrew Den");
   });
 
-  it("references relative CSS and favicon paths", () => {
+  it("references bundled CSS and the base-prefixed favicon", () => {
     const links = $('link[rel="stylesheet"]').map((_, el) => $(el).attr("href")).get();
-    expect(links).toContain("../../output.css");
-    expect($('link[rel="icon"]').attr("href")).toBe("../../favicon.svg");
+    expect(links.some((h) => /\/_astro\/.*\.css$/.test(h))).toBe(true);
+    expect($('link[rel="icon"]').attr("href")).toBe(`${BASE}/favicon.svg`);
   });
 
   it("breadcrumb shows the name and links to the formulae section", () => {
     expect($("#breadcrumb-name").text()).toBe(f.name);
-    expect($('a[href="../../#formulae-section"]').length).toBeGreaterThanOrEqual(1);
+    expect($(`a[href="${BASE}/#formulae-section"]`).length).toBeGreaterThanOrEqual(1);
   });
 
   it("server-renders essential content (works without JS)", () => {
@@ -133,9 +128,8 @@ describe.each(formulae)("Formula page ($name)", (f) => {
     expect($("#sidebar-mobile").length).toBe(1);
   });
 
-  it("embeds only the search index (no per-item const)", () => {
-    const scripts = $("script").map((_, el) => $(el).html()).get().join("");
-    expect(scripts).toContain("const data =");
+  it("embeds the search index as JSON", () => {
+    expect($("#package-data").length).toBe(1);
   });
 });
 
@@ -151,14 +145,14 @@ describe.each(casks)("Cask page ($name)", (c) => {
     expect(title).toContain("Homebrew Den");
   });
 
-  it("references relative CSS path", () => {
+  it("references bundled CSS", () => {
     const links = $('link[rel="stylesheet"]').map((_, el) => $(el).attr("href")).get();
-    expect(links).toContain("../../output.css");
+    expect(links.some((h) => /\/_astro\/.*\.css$/.test(h))).toBe(true);
   });
 
   it("breadcrumb shows the name and links to the casks section", () => {
     expect($("#breadcrumb-name").text()).toBe(c.name);
-    expect($('a[href="../../#casks-section"]').length).toBeGreaterThanOrEqual(1);
+    expect($(`a[href="${BASE}/#casks-section"]`).length).toBeGreaterThanOrEqual(1);
   });
 
   it("server-renders essential content (works without JS)", () => {
@@ -173,9 +167,9 @@ describe.each(casks)("Cask page ($name)", (c) => {
 });
 
 describe("Cross-page: static assets exist on disk", () => {
-  it("output.css / favicon.svg / shared.js exist", () => {
-    expectFileExists("output.css");
+  it("bundled CSS + JS and favicon exist", () => {
+    expect(bundledAssets(".css").length).toBeGreaterThan(0);
+    expect(bundledAssets(".js").length).toBeGreaterThan(0);
     expectFileExists("favicon.svg");
-    expectFileExists("shared.js");
   });
 });
