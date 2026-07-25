@@ -33,24 +33,24 @@ The site auto-rebuilds on every push to `main` and includes:
 - Per-formula and per-cask detail pages with install commands, metadata, caveats, and version history
 - Stability badges (Alpha, Beta, RC, Pre-release) based on semver and GitHub Releases
 
-To build locally:
+The site is built with [Astro](https://astro.build) (static output, Tailwind CSS
+v4). To build locally:
 
 ```sh
 npm install                # Install dependencies (first time only)
-bash scripts/build-site.sh
-open _site/index.html
+npm run dev                # Live dev server, or…
+npm run build              # Build the static site into _site/
+npm run preview            # Serve the built _site/ locally
 ```
 
-The build needs **Node.js** (Tailwind CSS) and **Python 3** (parsing the GitHub
-Releases API for version history). Useful environment knobs:
+The build needs **Node.js 22+** only. Useful environment knobs:
 
 - `OFFLINE=1` — skip all network calls and build with empty version history
   (explicit local offline mode).
 - `STRICT_RELEASES=1` — fail the build if the GitHub API is unreachable (set
   automatically when `CI=true`) so production never ships pages with version
   history silently dropped.
-- `OUT_DIR=<dir>` — write the site somewhere other than `_site` (the test suite
-  uses this to build into an isolated temp directory).
+- `GITHUB_TOKEN` — authenticate the GitHub Releases API requests (version history).
 
 ## Adding a New Formula
 
