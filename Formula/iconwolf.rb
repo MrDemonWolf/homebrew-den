@@ -1,16 +1,16 @@
 class Iconwolf < Formula
   desc "Cross-platform app icon generator for Expo/React Native projects"
   homepage "https://github.com/MrDemonWolf/iconwolf"
+  url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.4.0/iconwolf-macos-arm64.tar.gz"
   version "0.4.0"
+  sha256 "3d2fc96dcb820723caf70c6e9f8a1a37145a120eb66701d7961507f52e6f4c8b"
   license "MIT"
 
-  on_macos do
-    if Hardware::CPU.arm?
-      url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.4.0/iconwolf-macos-arm64.tar.gz"
-      sha256 "e1496a7e38cb7d000a2341b68cfdb9f52a834848eb103b01dbe5e5288db1b742"
-    end
-  end
-
+  # Only an Apple-Silicon macOS binary is published, so the url is top-level
+  # (a nested on_macos/on_arm-only url is invalid on other platforms) and the
+  # dependencies restrict installation to arm64 macOS.
+  depends_on arch: :arm64
+  depends_on :macos
   depends_on "node"
 
   def install
@@ -46,6 +46,6 @@ class Iconwolf < Formula
   end
 
   test do
-    assert_match "0.4.0", shell_output("#{bin}/iconwolf --version")
+    assert_match version.to_s, shell_output("#{bin}/iconwolf --version")
   end
 end

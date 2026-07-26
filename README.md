@@ -20,7 +20,7 @@ brew install --cask <name>      # macOS apps
 
 | Cask | Description |
 | ---- | ----------- |
-| `wolfwave` | macOS menu bar app that bridges Apple Music with Twitch, Discord, and stream overlays |
+| `wolfwave` | Menu bar app bridging Apple Music with Twitch, Discord, and stream overlays |
 
 ## Documentation Site
 
@@ -33,13 +33,24 @@ The site auto-rebuilds on every push to `main` and includes:
 - Per-formula and per-cask detail pages with install commands, metadata, caveats, and version history
 - Stability badges (Alpha, Beta, RC, Pre-release) based on semver and GitHub Releases
 
-To build locally:
+The site is built with [Astro](https://astro.build) (static output, Tailwind CSS
+v4). To build locally:
 
 ```sh
 npm install                # Install dependencies (first time only)
-bash scripts/build-site.sh
-open _site/index.html
+npm run dev                # Live dev server, or…
+npm run build              # Build the static site into _site/
+npm run preview            # Serve the built _site/ locally
 ```
+
+The build needs **Node.js 22+** only. Useful environment knobs:
+
+- `OFFLINE=1` — skip all network calls and build with empty version history
+  (explicit local offline mode).
+- `STRICT_RELEASES=1` — fail the build if the GitHub API is unreachable (set
+  automatically when `CI=true`) so production never ships pages with version
+  history silently dropped.
+- `GITHUB_TOKEN` — authenticate the GitHub Releases API requests (version history).
 
 ## Adding a New Formula
 
@@ -49,15 +60,15 @@ Create a file at `Formula/<name>.rb` pointing at a pre-built release binary:
 class <Name> < Formula
   desc "<Short description>"
   homepage "https://github.com/<owner>/<repo>"
+  url "https://github.com/<owner>/<repo>/releases/download/v<version>/<name>-macos-arm64.tar.gz"
   version "<version>"
+  sha256 "<sha256>"
   license "MIT"
 
-  on_macos do
-    if Hardware::CPU.arm?
-      url "https://github.com/<owner>/<repo>/releases/download/v#{version}/<name>-macos-arm64.tar.gz"
-      sha256 "<sha256>"
-    end
-  end
+  # Apple-Silicon macOS only: keep the url top-level (a nested on_macos/on_arm
+  # url is invalid on other platforms) and restrict installation via depends_on.
+  depends_on arch: :arm64
+  depends_on :macos
 
   def install
     bin.install "<name>"

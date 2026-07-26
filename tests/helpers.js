@@ -1,97 +1,108 @@
 import { execSync } from "node:child_process";
-import { readFileSync, existsSync } from "node:fs";
+import {
+  readFileSync,
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  writeFileSync,
+  mkdirSync,
+  cpSync,
+  symlinkSync,
+} from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { load } from "cheerio";
-import { expect } from "vitest";
+import { expect, inject } from "vitest";
+import { loadCatalog, parseField } from "../src/lib/catalog.mjs";
 
 export const ROOT = path.resolve(import.meta.dirname, "..");
-export const SITE_DIR = path.join(ROOT, "_site");
-export const FORMULA_DIR = path.join(ROOT, "Formula");
-export const CASKS_DIR = path.join(ROOT, "Casks");
+export const BASE = "/homebrew-den";
 
-let built = false;
-
-/**
- * Run the build script once. Subsequent calls are no-ops.
- * Skips the build if _site/index.html already exists (e.g. CI pre-built it).
- * Returns the build stdout (empty string if skipped).
- */
-export function runBuild() {
-  if (built) return "";
-  if (existsSync(path.join(SITE_DIR, "index.html"))) {
-    built = true;
-    return "";
-  }
-  const out = execSync("bash scripts/build-site.sh", {
-    cwd: ROOT,
-    encoding: "utf-8",
-    timeout: 120_000,
-    env: { ...process.env },
-  });
-  built = true;
-  return out;
+// The single offline build produced by tests/global-setup.js.
+export function siteDir() {
+  return inject("siteDir");
 }
 
-/**
- * Read an HTML file from _site/ and return a cheerio instance.
- */
+/** Read an HTML file from the built site and return a cheerio instance. */
 export function loadHTML(relativePath) {
-  const html = readFileSync(path.join(SITE_DIR, relativePath), "utf-8");
-  return load(html);
+  return load(readFileSync(path.join(siteDir(), relativePath), "utf-8"));
 }
 
-/**
- * Read a raw file from _site/.
- */
+/** Read a raw file from the built site. */
 export function readSiteFile(relativePath) {
-  return readFileSync(path.join(SITE_DIR, relativePath), "utf-8");
+  return readFileSync(path.join(siteDir(), relativePath), "utf-8");
 }
 
-/**
- * Extract a JSON object assigned to a JS variable from HTML source.
- * e.g. extractJSON(html, "data") parses `const data = {...};`
- */
-export function extractJSON(html, varName) {
-  const match = html.match(new RegExp(`const ${varName} = ({.*?});`, "s"));
-  expect(match).not.toBeNull();
-  return JSON.parse(match[1]);
-}
-
-/**
- * Assert a file exists inside _site/.
- */
+/** Assert a file exists inside the built site. */
 export function expectFileExists(...segments) {
-  expect(existsSync(path.join(SITE_DIR, ...segments))).toBe(true);
+  expect(existsSync(path.join(siteDir(), ...segments))).toBe(true);
+}
+
+/** Bundled CSS/JS filenames Astro emitted under _astro/. */
+export function bundledAssets(ext) {
+  const dir = path.join(siteDir(), "_astro");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir).filter((f) => f.endsWith(ext));
 }
 
 /**
- * Assert a template placeholder is not present in the HTML string.
+ * Extract the embedded search catalog from a page. Astro embeds it as a
+ * <script type="application/json" id="package-data"> (script-safe JSON).
  */
-export function expectNoPlaceholder(html, placeholder) {
-  expect(html).not.toContain(`{{${placeholder}}}`);
+export function extractPackageData(html) {
+  const m = html.match(
+    /<script type="application\/json" id="package-data"[^>]*>([\s\S]*?)<\/script>/,
+  );
+  expect(m, "package-data script not found").not.toBeNull();
+  return JSON.parse(m[1]);
 }
 
-/**
- * Extract a formula field value using a regex pattern.
- * Returns the first capture group match.
- */
+// --- Catalog (single source of truth: src/lib/catalog.mjs) ---
+export { loadCatalog, parseField } from "../src/lib/catalog.mjs";
+
+/** Quoted field value from .rb source (alias of the shared parser). */
+export const extractRbField = parseField;
+
+/** Match a caller-supplied regex against .rb source and return group 1. */
 export function extractFormulaField(content, regex) {
   const match = content.match(regex);
   expect(match).not.toBeNull();
   return match[1];
 }
 
+export function listFormulae() {
+  return loadCatalog(ROOT).formulae;
+}
+
+export function listCasks() {
+  return loadCatalog(ROOT).casks;
+}
+
 /**
- * Load a named function from site/shared.js by extracting its source.
- * This lets tests exercise the *actual* shipped implementation rather than
- * a separate copy that could silently drift.
+ * Build a throwaway Astro tap (copies src/ + config from ROOT, symlinks
+ * node_modules) whose Formula/Casks are provided inline. Runs OFFLINE so it is
+ * deterministic and network-free. Returns the built site directory. Used for
+ * hostile-input / XSS tests. One full `astro build` per call — keep to one.
  */
-export function loadSharedFunction(fnName) {
-  const src = readFileSync(path.join(ROOT, "site", "shared.js"), "utf-8");
-  const match = src.match(new RegExp(`function ${fnName}\\s*\\([\\s\\S]*?\\n\\}`));
-  if (!match) {
-    throw new Error(`function ${fnName} not found in site/shared.js`);
+export function buildFixtureTap({ formulae = {}, casks = {} } = {}) {
+  const tap = mkdtempSync(path.join(os.tmpdir(), "homebrew-den-fixture-"));
+  cpSync(path.join(ROOT, "src"), path.join(tap, "src"), { recursive: true });
+  cpSync(path.join(ROOT, "astro.config.mjs"), path.join(tap, "astro.config.mjs"));
+  cpSync(path.join(ROOT, "package.json"), path.join(tap, "package.json"));
+  // Symlink the real node_modules so astro + @tailwindcss/vite resolve.
+  symlinkSync(path.join(ROOT, "node_modules"), path.join(tap, "node_modules"), "dir");
+  mkdirSync(path.join(tap, "Formula"), { recursive: true });
+  mkdirSync(path.join(tap, "Casks"), { recursive: true });
+  for (const [file, body] of Object.entries(formulae)) {
+    writeFileSync(path.join(tap, "Formula", file), body);
   }
-  // eslint-disable-next-line no-new-func
-  return new Function(`${match[0]}\nreturn ${fnName};`)();
+  for (const [file, body] of Object.entries(casks)) {
+    writeFileSync(path.join(tap, "Casks", file), body);
+  }
+  const out = path.join(tap, "_site");
+  // Drop vitest's injected BASE_URL so Astro's configured base is used.
+  const env = { ...process.env, OFFLINE: "1", SITE_OUT_DIR: out };
+  delete env.BASE_URL;
+  execSync("npx astro build", { cwd: tap, encoding: "utf-8", timeout: 120_000, env });
+  return out;
 }

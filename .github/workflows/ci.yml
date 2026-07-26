@@ -5,19 +5,25 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
+    name: Build & test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
           cache: 'npm'
@@ -25,10 +31,102 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build site
-        run: bash scripts/build-site.sh
+      - name: npm audit
+        run: npm audit --audit-level=high
+
+      - name: Build site (strict — fails if the GitHub API is unreachable)
+        run: npx astro build
         env:
+          STRICT_RELEASES: '1'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify the generated site
+        run: node scripts/verify-site.mjs _site
 
       - name: Run tests
         run: npm test
+
+      - name: Upload Pages artifact (the exact tested build)
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: _site
+
+  brew:
+    name: Homebrew validation
+    runs-on: macos-latest
+    steps:
+      - name: Checkout into a tap path
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: homebrew-den
+
+      # verify-checksums.mjs runs on Node (builtins + src/lib/catalog.mjs only,
+      # so no npm ci is needed) — pin the runtime instead of trusting the image.
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Link the repo as a Homebrew tap
+        run: |
+          TAP_DIR="$(brew --repository)/Library/Taps/mrdemonwolf/homebrew-den"
+          mkdir -p "$(dirname "$TAP_DIR")"
+          ln -s "$GITHUB_WORKSPACE/homebrew-den" "$TAP_DIR"
+
+      - name: brew style (formulae + casks only)
+        run: |
+          shopt -s nullglob
+          brew style homebrew-den/Formula/*.rb homebrew-den/Casks/*.rb
+
+      - name: brew readall
+        run: brew readall mrdemonwolf/den
+
+      - name: brew audit (strict, online)
+        run: |
+          shopt -s nullglob
+          for f in homebrew-den/Formula/*.rb; do
+            brew audit --strict --online --formula "mrdemonwolf/den/$(basename "${f%.rb}")"
+          done
+          for c in homebrew-den/Casks/*.rb; do
+            brew audit --strict --online --cask "mrdemonwolf/den/$(basename "${c%.rb}")"
+          done
+
+      - name: Verify release artifact checksums
+        run: node homebrew-den/scripts/verify-checksums.mjs
+
+      - name: brew livecheck (informational)
+        continue-on-error: true
+        run: brew livecheck --tap mrdemonwolf/den
+
+      - name: Install smoke test (formula, informational)
+        continue-on-error: true
+        run: |
+          shopt -s nullglob
+          for f in homebrew-den/Formula/*.rb; do
+            name="mrdemonwolf/den/$(basename "${f%.rb}")"
+            brew install --formula "$name"
+            brew test --formula "$name" || true
+          done
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: [test, brew]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
+      - name: Deploy the artifact that passed CI
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

@@ -1,0 +1,14 @@
+---
+// Server-rendered stability badge (empty for stable/unknown). Ports badge_html.
+const { stability } = Astro.props;
+const BASE =
+  "inline-block font-sans text-[0.7rem] font-bold uppercase tracking-[0.04em] px-2 py-0.5 rounded-xl whitespace-nowrap align-middle";
+const MAP = {
+  alpha: ["bg-[rgba(245,158,11,0.15)] text-[#f59e0b]", "Alpha"],
+  beta: ["bg-[rgba(168,85,247,0.15)] text-[#a855f7]", "Beta"],
+  rc: ["bg-[rgba(59,130,246,0.15)] text-[#3b82f6]", "RC"],
+  "pre-release": ["bg-[rgba(249,115,22,0.15)] text-[#f97316]", "Pre-release"],
+};
+const entry = MAP[stability];
+---
+{entry && <span class={`${BASE} ${entry[0]}`}>{entry[1]}</span>}

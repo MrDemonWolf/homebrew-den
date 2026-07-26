@@ -1,0 +1,54 @@
+---
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+import SearchModal from "../components/SearchModal.astro";
+import Footer from "../components/Footer.astro";
+import { loadCatalog } from "../lib/catalog.mjs";
+import { serializeJson } from "../lib/serialize.mjs";
+
+const { title, description } = Astro.props;
+// BASE_URL has no trailing slash (e.g. "/homebrew-den"); normalize then join.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// The search palette's index — same catalog on every page. Only the fields the
+// client uses (name/desc/version); embedded script-safe.
+const cat = loadCatalog(process.cwd());
+const searchData = {
+  formulae: cat.formulae.map((f) => ({ name: f.name, version: f.version, desc: f.desc })),
+  casks: cat.casks.map((c) => ({ name: c.name, version: c.version, desc: c.desc })),
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- No-flash: apply the saved/system theme before first paint. -->
+  <script is:inline>
+    try {
+      var t = localStorage.getItem("theme");
+      if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+        document.documentElement.classList.add("dark");
+      }
+    } catch (e) {}
+  </script>
+</head>
+<body class="font-sans leading-relaxed">
+  <Nav />
+  <SearchModal />
+  <slot />
+  <Footer />
+
+  <!-- Catalog for the search palette (script-safe JSON, parsed by site.js). -->
+  <script type="application/json" id="package-data" set:html={serializeJson(searchData)} is:inline></script>
+  <script>
+    import "../scripts/site.js";
+  </script>
+</body>
+</html>
