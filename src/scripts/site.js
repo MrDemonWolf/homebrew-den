@@ -25,7 +25,16 @@ function escapeHtml(value) {
 // Relative/anchor URLs (no scheme) are allowed; protocol-relative and any
 // scheme other than http(s)/mailto collapse to "#".
 function safeUrl(value) {
-  var url = String(value == null ? '' : value).trim();
+  // Drop C0 controls/DEL first — the WHATWG URL parser strips ASCII tab/LF/CR
+  // while resolving a scheme, so "java<TAB>script:..." would otherwise slip past
+  // the scheme test below and still execute. Mirrors src/lib/serialize.mjs.
+  var raw = String(value == null ? '' : value);
+  var url = '';
+  for (var i = 0; i < raw.length; i++) {
+    var c = raw.charCodeAt(i);
+    if (c > 0x1f && c !== 0x7f) url += raw.charAt(i);
+  }
+  url = url.trim();
   if (/^\/\//.test(url)) return '#';
   if (/^[a-z][a-z0-9+.\-]*:/i.test(url)) {
     return /^(https?:|mailto:)/i.test(url) ? url : '#';
