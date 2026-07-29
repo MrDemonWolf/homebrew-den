@@ -1,15 +1,19 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { load } from "cheerio";
 import { buildFixtureTap } from "./helpers.js";
 
 // A formula whose metadata is packed with hostile values: a <script> breakout,
 // ampersands/quotes, a dangerous URL scheme, and a U+2028 line separator.
 const BREAKOUT = "</script><script>alert(1)</script>";
 const SEP = "\u2028";
+// Tab-obfuscated scheme: browsers strip ASCII tab/LF/CR before resolving the
+// scheme, so this must be blocked exactly like a plain `javascript:` URL.
+const OBFUSCATED_JS_URL = "java\tscript:alert(document.domain)";
 const hostileFormula = `class Eviltool < Formula
   desc "Break ${BREAKOUT} & 'quote' out"
-  homepage "javascript:alert(document.domain)"
+  homepage "${OBFUSCATED_JS_URL}"
   version "1.0.0"
   license "MIT ${BREAKOUT}"
 
@@ -62,10 +66,11 @@ describe("Hostile metadata is safely escaped in generated HTML", () => {
     expect(match[1]).not.toContain("\u2029");
   });
 
-  it("blocks a javascript: homepage URL (collapses to #)", () => {
-    const hrefMatch = html.match(/id="detail-homepage" href="([^"]*)"/);
-    expect(hrefMatch).not.toBeNull();
-    expect(hrefMatch[1]).not.toMatch(/^javascript:/i);
-    expect(hrefMatch[1]).toBe("#");
+  it("blocks a control-char-obfuscated javascript: homepage URL (collapses to #)", () => {
+    const href = load(html)("#detail-homepage").attr("href");
+    // The payload must not survive in the href. It may still appear as inert,
+    // escaped link *text* — that is display, not a navigable target.
+    expect(href).toBe("#");
+    expect(href).not.toMatch(/script:/i);
   });
 });
