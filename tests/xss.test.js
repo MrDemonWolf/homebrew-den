@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { load } from "cheerio";
 import { buildFixtureTap } from "./helpers.js";
 
 // A formula whose metadata is packed with hostile values: a <script> breakout,
@@ -66,11 +67,10 @@ describe("Hostile metadata is safely escaped in generated HTML", () => {
   });
 
   it("blocks a control-char-obfuscated javascript: homepage URL (collapses to #)", () => {
-    const hrefMatch = html.match(/id="detail-homepage" href="([^"]*)"/);
-    expect(hrefMatch).not.toBeNull();
-    expect(hrefMatch[1]).toBe("#");
+    const href = load(html)("#detail-homepage").attr("href");
     // The payload must not survive in the href. It may still appear as inert,
     // escaped link *text* — that is display, not a navigable target.
-    expect(hrefMatch[1]).not.toMatch(/script:/i);
+    expect(href).toBe("#");
+    expect(href).not.toMatch(/script:/i);
   });
 });

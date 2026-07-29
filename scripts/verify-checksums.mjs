@@ -7,9 +7,23 @@ import { createHash } from "node:crypto";
 import { loadCatalog } from "../src/lib/catalog.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
-const TIMEOUT_MS = Number(process.env.CHECKSUM_TIMEOUT_MS || 180000);
-const RETRIES = Number(process.env.CHECKSUM_RETRIES || 3);
-const RETRY_DELAY_MS = Number(process.env.CHECKSUM_RETRY_DELAY_MS || 3000);
+
+// Fail loudly on a bad override rather than silently degrading: Number("abc")
+// is NaN, and `attempt <= NaN` is false, so the retry loop would never run a
+// single attempt and would throw an undefined error.
+function envInt(name, fallback) {
+  const raw = process.env[name];
+  if (raw === undefined || raw === "") return fallback;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new Error(`${name} must be a non-negative integer (got ${JSON.stringify(raw)})`);
+  }
+  return value;
+}
+
+const TIMEOUT_MS = envInt("CHECKSUM_TIMEOUT_MS", 180000);
+const RETRIES = envInt("CHECKSUM_RETRIES", 3);
+const RETRY_DELAY_MS = envInt("CHECKSUM_RETRY_DELAY_MS", 3000);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -24,9 +38,20 @@ async function download(url) {
     const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
     try {
       const res = await fetch(url, { redirect: "follow", signal: ctrl.signal });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        // Drain the body so the socket can be reused/closed promptly.
+        await res.arrayBuffer().catch(() => {});
+        const err = new Error(`HTTP ${res.status}`);
+        // 4xx (bad URL, renamed asset, private repo) will never succeed on a
+        // retry — fail immediately instead of burning RETRIES * delay first.
+        if (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429) {
+          err.permanent = true;
+        }
+        throw err;
+      }
       return Buffer.from(await res.arrayBuffer());
     } catch (e) {
+      if (e.permanent) throw e;
       lastErr = e;
       if (attempt < RETRIES) console.log(`   .. attempt ${attempt + 1} failed (${e.message}), retrying`);
     } finally {

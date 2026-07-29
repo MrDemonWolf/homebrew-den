@@ -54,13 +54,6 @@ jobs:
   brew:
     name: Homebrew validation
     runs-on: macos-latest
-    # brew audit/livecheck call the GitHub API directly. Unauthenticated they
-    # share a 60 req/hr per-IP limit with every other job on the runner, which
-    # fails the job intermittently ("API rate limit exceeded") regardless of the
-    # formula/cask contents. The job-scoped token raises that to 5000/hr and
-    # applies to every brew step below.
-    env:
-      HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout into a tap path
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -88,7 +81,14 @@ jobs:
       - name: brew readall
         run: brew readall mrdemonwolf/den
 
+      # brew audit/livecheck call the GitHub API directly. Unauthenticated they
+      # share a 60 req/hr per-IP limit with every other job on the runner, so the
+      # job failed intermittently ("API rate limit exceeded") regardless of the
+      # formula/cask contents. Scoped to these two steps only — brew install and
+      # brew test run formula-controlled code and must not see the token.
       - name: brew audit (strict, online)
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           shopt -s nullglob
           for f in homebrew-den/Formula/*.rb; do
@@ -102,6 +102,8 @@ jobs:
         run: node homebrew-den/scripts/verify-checksums.mjs
 
       - name: brew livecheck (informational)
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
         run: brew livecheck --tap mrdemonwolf/den
 
