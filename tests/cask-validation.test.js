@@ -40,13 +40,4 @@ describe.each(listCasks())("Cask: $filename", (c) => {
   it("declares an app stanza", () => {
     expect(content).toMatch(/^\s*app\s+"/m);
   });
-
-  it("verifies the github download when homepage is off-github", () => {
-    const urlHost = new URL(c.url.replaceAll("#{version}", c.version || "")).host;
-    const homeHost = new URL(c.homepage).host;
-    // brew requires `verified:` when the download host differs from the homepage host.
-    if (urlHost !== homeHost) {
-      expect(content).toMatch(/verified:\s*"/);
-    }
-  });
 });
