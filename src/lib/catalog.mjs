@@ -36,10 +36,14 @@ function parseFormula(dir, filename) {
   const content = readFileSync(path.join(dir, filename), "utf-8");
   const homepage = parseField(content, "homepage");
   const url = parseField(content, "url");
+  const version =
+    parseField(content, "version") ??
+    url?.match(/(?:^|[\/_-])v?(\d+(?:\.\d+)+)(?=[\/_.-]|$)/i)?.[1] ??
+    null;
   return {
     filename,
     name: filename.replace(/\.rb$/, ""),
-    version: parseField(content, "version"),
+    version,
     desc: parseField(content, "desc"),
     homepage,
     license: parseField(content, "license"),

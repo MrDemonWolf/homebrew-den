@@ -2,7 +2,6 @@ class Iconwolf < Formula
   desc "Cross-platform app icon generator for Expo/React Native projects"
   homepage "https://github.com/MrDemonWolf/iconwolf"
   url "https://github.com/MrDemonWolf/iconwolf/releases/download/v0.4.0/iconwolf-macos-arm64.tar.gz"
-  version "0.4.0"
   sha256 "3d2fc96dcb820723caf70c6e9f8a1a37145a120eb66701d7961507f52e6f4c8b"
   license "MIT"
 

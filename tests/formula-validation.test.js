@@ -17,9 +17,8 @@ describe.each(listFormulae())("Formula: $filename", (f) => {
     expect(homepage).toMatch(/^https:\/\//);
   });
 
-  it("has a version field matching semver-ish pattern", () => {
-    const version = extractFormulaField(content, /^\s*version\s+"(.+)"/m);
-    expect(version).toMatch(/^\d+\.\d+/);
+  it("has a detectable semver-ish version", () => {
+    expect(f.version).toMatch(/^\d+\.\d+/);
   });
 
   it("has a license field", () => {
