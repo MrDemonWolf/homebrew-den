@@ -15,7 +15,7 @@ brew install --cask <name>      # macOS apps
 | Formula | Version | Stability | Description |
 | ------- | ------- | --------- | ----------- |
 | `iconwolf` | 0.4.0 | Alpha | Cross-platform app icon generator for Expo/React Native projects |
-| `obs-backup` | 0.1.0 | Stable | Back up macOS OBS scenes and profiles to Google Drive |
+| `obs-backup` | 0.1.1 | Stable | Back up macOS OBS scenes and profiles to Google Drive |
 
 ## Available Casks
 
