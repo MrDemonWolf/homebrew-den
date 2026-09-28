@@ -1,8 +1,8 @@
 class ObsBackup < Formula
   desc "Back up macOS OBS scenes and profiles to Google Drive"
   homepage "https://github.com/MrDemonWolf/obs-setup"
-  url "https://github.com/MrDemonWolf/obs-setup/archive/refs/tags/v0.1.1.tar.gz"
-  sha256 "c98993501d876f2357671da27a9cf00780a545f59d8c648ac16a0ddc4616b166"
+  url "https://github.com/MrDemonWolf/obs-setup/archive/refs/tags/v0.1.2.tar.gz"
+  sha256 "64325a4f04ffac852305de1b3a2ace3909f848edc6a6c9a96a95a0be97a5beeb"
   license "MIT"
 
   depends_on "python"
