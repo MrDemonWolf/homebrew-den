@@ -1,7 +1,6 @@
 class ObsBackup < Formula
   desc "Back up macOS OBS scenes and profiles to Google Drive"
   homepage "https://github.com/MrDemonWolf/obs-setup"
-  version "0.1.0"
   url "https://github.com/MrDemonWolf/obs-setup/archive/refs/tags/v0.1.0.tar.gz"
   sha256 "577b0ed4e9a78a7063c8b3ef6c6b9fc710f144e891a999952fc47b561956b068"
   license "MIT"
@@ -26,7 +25,7 @@ class ObsBackup < Formula
   end
 
   test do
-    assert_predicate libexec/"backup.sh", :exist?
-    assert_predicate libexec/"sanitize.py", :exist?
+    assert_path_exists libexec/"backup.sh"
+    assert_path_exists libexec/"sanitize.py"
   end
 end
